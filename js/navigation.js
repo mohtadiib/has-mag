@@ -217,19 +217,40 @@ function renderSubHeader() {
   if (state.activeTab === 'home' && state.navLevel > 1) {
     const mod = getModule();
     const sub = getSubSection();
-    const titleText = state.navLevel === 2
-      ? mod.shortTitle
-      : state.navLevel === 3
-        ? (state.activeChildSubCode !== 'الكل' && state.activeChildSubCode !== 'عرض الكل' ? `${sub.shortTitle} • ${state.activeChildSubCode}` : sub.shortTitle)
-        : 'تفاصيل السجل';
+    const pmGroup = (sub?.hasChildSubIcons) ? (sub.childSubOptions || []).find(o => o.isGroup && (o.code === state.activeChildSubCode || (o.children || []).some(ch => ch.code === state.activeChildSubCode) || state.activeChildSubCode === 'عرض كل الصيانة الوقائية')) : null;
 
-    const backAction = state.navLevel === 4
-      ? `openSubSection('${mod.id}', '${sub.id}', '${state.activeChildSubCode}')`
-      : (state.navLevel === 3 && state.activeChildSubCode !== 'الكل')
-        ? `openSubSection('${mod.id}', '${sub.id}', 'الكل')`
-        : (state.navLevel === 3 && mod.subSections.length > 1)
-          ? `openModule('${mod.id}')`
-          : 'goHome()';
+    let titleText = mod.shortTitle;
+    if (state.navLevel === 2) {
+      titleText = mod.shortTitle;
+    } else if (state.navLevel === 3) {
+      if (state.activeChildSubCode === 'الكل' || state.activeChildSubCode === 'عرض الكل') {
+        titleText = sub.shortTitle;
+      } else if (pmGroup && state.activeChildSubCode === pmGroup.code) {
+        titleText = `${sub.shortTitle} • الصيانة الوقائية`;
+      } else if (pmGroup && state.activeChildSubCode === 'عرض كل الصيانة الوقائية') {
+        titleText = `${sub.shortTitle} • كل الصيانة الوقائية`;
+      } else {
+        const childOpt = pmGroup
+          ? (pmGroup.children || []).find(ch => ch.code === state.activeChildSubCode)
+          : (sub.childSubOptions || []).find(o => o.code === state.activeChildSubCode);
+        titleText = `${sub.shortTitle} • ${childOpt ? childOpt.title : state.activeChildSubCode}`;
+      }
+    } else {
+      titleText = 'تفاصيل السجل';
+    }
+
+    let backAction = 'goHome()';
+    if (state.navLevel === 4) {
+      backAction = `openSubSection('${mod.id}', '${sub.id}', '${state.activeChildSubCode}')`;
+    } else if (state.navLevel === 3) {
+      if (pmGroup && state.activeChildSubCode !== pmGroup.code && state.activeChildSubCode !== 'الكل') {
+        backAction = `state.activeChildSubCode='${pmGroup.code}'; renderApp();`;
+      } else if (state.activeChildSubCode !== 'الكل') {
+        backAction = `openSubSection('${mod.id}', '${sub.id}', 'الكل')`;
+      } else if (mod.subSections.length > 1) {
+        backAction = `openModule('${mod.id}')`;
+      }
+    }
 
     // Single Action Button in Header when on Level 3 (No duplicate buttons!)
     let rightActionHtml = `
@@ -358,11 +379,26 @@ function getBreadcrumbsTrail() {
       }
 
       if (sub.hasChildSubIcons && state.activeChildSubCode !== 'الكل') {
-        const childOpt = (sub.childSubOptions || []).find(o => o.code === state.activeChildSubCode);
-        crumbs.push({
-          label: childOpt ? childOpt.title : state.activeChildSubCode,
-          action: `openSubSection('${mod.id}', '${sub.id}', '${state.activeChildSubCode}')`
-        });
+        const pmGroup = (sub.childSubOptions || []).find(o => o.isGroup && (o.code === state.activeChildSubCode || (o.children || []).some(ch => ch.code === state.activeChildSubCode) || state.activeChildSubCode === 'عرض كل الصيانة الوقائية'));
+        if (pmGroup) {
+          crumbs.push({
+            label: 'الصيانة الوقائية',
+            action: `state.activeChildSubCode='${pmGroup.code}'; renderApp();`
+          });
+          if (state.activeChildSubCode !== pmGroup.code) {
+            const childOpt = (pmGroup.children || []).find(ch => ch.code === state.activeChildSubCode);
+            crumbs.push({
+              label: childOpt ? childOpt.title : (state.activeChildSubCode === 'عرض كل الصيانة الوقائية' ? 'كل الصيانة' : state.activeChildSubCode),
+              action: `openSubSection('${mod.id}', '${sub.id}', '${state.activeChildSubCode}')`
+            });
+          }
+        } else {
+          const childOpt = (sub.childSubOptions || []).find(o => o.code === state.activeChildSubCode);
+          crumbs.push({
+            label: childOpt ? childOpt.title : state.activeChildSubCode,
+            action: `openSubSection('${mod.id}', '${sub.id}', '${state.activeChildSubCode}')`
+          });
+        }
       } else if (sub.branchByDept && state.activeChildSubCode !== 'الكل') {
         crumbs.push({
           label: state.activeChildSubCode,

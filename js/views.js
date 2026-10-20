@@ -140,7 +140,7 @@ function renderSubSectionRecords() {
     </div>
   ` : '';
 
-  // Case A: 3rd-Level Child Sub-Icons (9 PDF reports, Shifts A/B/C, Sewage Cars 1-4, Outage Services)
+  // Case A1: 3rd-Level Child Sub-Icons (Top Level: Group Icons & Direct Options)
   if (sub.hasChildSubIcons && state.activeChildSubCode === 'الكل') {
     return `
       <div class="fade-in">
@@ -155,6 +155,42 @@ function renderSubSectionRecords() {
 
           <div class="grid grid-cols-3 gap-y-3 gap-x-2 text-center pt-1">
             ${sub.childSubOptions.map(c => {
+              const cnt = c.isGroup
+                ? (sub.records || []).filter(r => (c.children || []).some(ch => ch.code === r[sub.childSubField])).length
+                : (sub.records || []).filter(r => r[sub.childSubField] === c.code).length;
+              return `
+                <div onclick="state.activeChildSubCode='${c.code}'; renderApp();" class="cursor-pointer flex flex-col items-center justify-start group relative py-2 px-1 rounded-xl hover:bg-[#ede7e2]/40 active:scale-95 transition duration-150 select-none">
+                  <div class="relative flex items-center justify-center transition-transform duration-200 group-hover:scale-110">
+                    <span class="absolute -top-1 -right-2 px-1.5 py-0.5 rounded-full bg-[#47525e] text-white text-[9px] font-extrabold shadow-xs leading-none border border-white z-10">${cnt}</span>
+                    <img src="${c.icon}" alt="${c.title}" class="w-10 h-10 object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.08)]" />
+                  </div>
+                  <span class="text-[11px] font-bold text-[#111827] group-hover:text-[#db6b49] mt-2 leading-tight text-center transition tracking-tight">${c.title}</span>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Case A2: Sub-Level Icons if a Group is selected (e.g. 'الصيانة الوقائية')
+  const activeGroup = sub.hasChildSubIcons ? (sub.childSubOptions || []).find(o => o.isGroup && o.code === state.activeChildSubCode) : null;
+  if (activeGroup) {
+    const groupRecords = (sub.records || []).filter(r => (activeGroup.children || []).some(ch => ch.code === r[sub.childSubField]));
+    return `
+      <div class="fade-in">
+        ${subTabsHtml}
+        <div class="p-3.5 space-y-3">
+          <div class="flex items-center justify-between px-0.5">
+            <span class="text-xs font-extrabold text-[#111827]">اختر تقرير الصيانة الوقائية:</span>
+            <button type="button" onclick="state.activeChildSubCode='عرض كل الصيانة الوقائية'; renderApp();" class="text-xs font-bold text-[#db6b49] hover:underline">
+              عرض كل الصيانة (${groupRecords.length}) ←
+            </button>
+          </div>
+
+          <div class="grid grid-cols-3 gap-y-3 gap-x-2 text-center pt-1">
+            ${activeGroup.children.map(c => {
               const cnt = (sub.records || []).filter(r => r[sub.childSubField] === c.code).length;
               return `
                 <div onclick="state.activeChildSubCode='${c.code}'; renderApp();" class="cursor-pointer flex flex-col items-center justify-start group relative py-2 px-1 rounded-xl hover:bg-[#ede7e2]/40 active:scale-95 transition duration-150 select-none">
@@ -232,7 +268,12 @@ function renderSubSectionRecords() {
   const filterConfig = sub.filterPills;
   const filteredRecords = (sub.records || []).filter(rec => {
     if (sub.hasChildSubIcons && state.activeChildSubCode !== 'الكل' && state.activeChildSubCode !== 'عرض الكل') {
-      if (rec[sub.childSubField] !== state.activeChildSubCode) return false;
+      if (state.activeChildSubCode === 'عرض كل الصيانة الوقائية') {
+        const pmGroup = (sub.childSubOptions || []).find(o => o.code === 'الصيانة الوقائية');
+        if (pmGroup && !(pmGroup.children || []).some(ch => ch.code === rec[sub.childSubField])) return false;
+      } else if (rec[sub.childSubField] !== state.activeChildSubCode) {
+        return false;
+      }
     }
     if (sub.branchByDept) {
       const deptVal = sub.hasChildSubIcons ? (state.activeDeptSubCode || 'الكل') : state.activeChildSubCode;
@@ -251,18 +292,42 @@ function renderSubSectionRecords() {
       ${subTabsHtml}
       <div class="p-3.5 space-y-3">
 
-        ${sub.hasChildSubIcons ? `
-          <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
-            <button type="button" onclick="state.activeChildSubCode='عرض الكل'; renderApp();" class="fit-tab shrink-0 px-3 py-1.5 rounded-xl text-[11px] font-extrabold border transition ${state.activeChildSubCode === 'عرض الكل' ? 'bg-[#47525e] text-white border-[#47525e]' : 'bg-white text-[#374151] border-[#dfd8d0]'}">
-              الكل (${(sub.records || []).length})
-            </button>
-            ${(sub.childSubOptions || []).map(c => `
-              <button type="button" onclick="state.activeChildSubCode='${c.code}'; renderApp();" class="fit-tab shrink-0 px-3 py-1.5 rounded-xl text-[11px] font-extrabold border transition ${state.activeChildSubCode === c.code ? 'bg-[#db6b49] text-white border-[#db6b49]' : 'bg-white text-[#374151] border-[#dfd8d0]'}">
-                ${c.title}
+        ${sub.hasChildSubIcons ? (() => {
+          const pmGroup = (sub.childSubOptions || []).find(o => o.isGroup && (o.code === state.activeChildSubCode || (o.children || []).some(ch => ch.code === state.activeChildSubCode) || state.activeChildSubCode === 'عرض كل الصيانة الوقائية'));
+          if (pmGroup) {
+            const groupRecords = (sub.records || []).filter(r => (pmGroup.children || []).some(ch => ch.code === r[sub.childSubField]));
+            return `
+              <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+                <button type="button" onclick="state.activeChildSubCode='الصيانة الوقائية'; renderApp();" class="fit-tab shrink-0 px-2.5 py-1.5 rounded-xl text-[11px] font-extrabold bg-[#f3ece6] text-[#6b7280] hover:text-[#db6b49] border border-[#dfd8d0] transition">
+                  ⊞ الأيقونات
+                </button>
+                <button type="button" onclick="state.activeChildSubCode='عرض كل الصيانة الوقائية'; renderApp();" class="fit-tab shrink-0 px-3 py-1.5 rounded-xl text-[11px] font-extrabold border transition ${state.activeChildSubCode === 'عرض كل الصيانة الوقائية' ? 'bg-[#47525e] text-white border-[#47525e]' : 'bg-white text-[#374151] border-[#dfd8d0]'}">
+                  كل الصيانة (${groupRecords.length})
+                </button>
+                ${(pmGroup.children || []).map(c => `
+                  <button type="button" onclick="state.activeChildSubCode='${c.code}'; renderApp();" class="fit-tab shrink-0 px-3 py-1.5 rounded-xl text-[11px] font-extrabold border transition ${state.activeChildSubCode === c.code ? 'bg-[#db6b49] text-white border-[#db6b49]' : 'bg-white text-[#374151] border-[#dfd8d0]'}">
+                    ${c.title}
+                  </button>
+                `).join('')}
+              </div>
+            `;
+          }
+          return `
+            <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+              <button type="button" onclick="state.activeChildSubCode='الكل'; renderApp();" class="fit-tab shrink-0 px-2.5 py-1.5 rounded-xl text-[11px] font-extrabold bg-[#f3ece6] text-[#6b7280] hover:text-[#db6b49] border border-[#dfd8d0] transition">
+                ⊞ الأيقونات
               </button>
-            `).join('')}
-          </div>
-        ` : ''}
+              <button type="button" onclick="state.activeChildSubCode='عرض الكل'; renderApp();" class="fit-tab shrink-0 px-3 py-1.5 rounded-xl text-[11px] font-extrabold border transition ${state.activeChildSubCode === 'عرض الكل' ? 'bg-[#47525e] text-white border-[#47525e]' : 'bg-white text-[#374151] border-[#dfd8d0]'}">
+                الكل (${(sub.records || []).length})
+              </button>
+              ${(sub.childSubOptions || []).map(c => `
+                <button type="button" onclick="state.activeChildSubCode='${c.code}'; renderApp();" class="fit-tab shrink-0 px-3 py-1.5 rounded-xl text-[11px] font-extrabold border transition ${state.activeChildSubCode === c.code ? 'bg-[#db6b49] text-white border-[#db6b49]' : 'bg-white text-[#374151] border-[#dfd8d0]'}">
+                  ${c.title}
+                </button>
+              `).join('')}
+            </div>
+          `;
+        })() : ''}
 
         ${sub.branchByDept ? `
           <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">

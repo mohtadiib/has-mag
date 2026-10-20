@@ -268,12 +268,20 @@ const SYSTEM_MODULES = [
         hasChildSubIcons: true,
         childSubField: 'reportType',
         childSubOptions: [
-          { code: 'يومي', title: 'اليومية', icon: ICON_PATHS.WorkControl },
-          { code: 'أسبوعي', title: 'الأسبوعية', icon: ICON_PATHS.WorkControl },
-          { code: 'شهري', title: 'الشهرية', icon: ICON_PATHS.WorkControl },
-          { code: 'ربع سنوي', title: 'الربع سنوية', icon: ICON_PATHS.WorkControl },
-          { code: 'نصف سنوي', title: 'النصف سنوية', icon: ICON_PATHS.WorkControl },
-          { code: 'سنوي', title: 'السنوية', icon: ICON_PATHS.WorkControl },
+          {
+            code: 'الصيانة الوقائية',
+            title: 'الصيانة الوقائية (Preventive maintenance)',
+            icon: ICON_PATHS.WorkControl,
+            isGroup: true,
+            children: [
+              { code: 'يومي', title: 'اليومية', icon: ICON_PATHS.WorkControl },
+              { code: 'أسبوعي', title: 'الأسبوعية', icon: ICON_PATHS.WorkControl },
+              { code: 'شهري', title: 'الشهرية', icon: ICON_PATHS.WorkControl },
+              { code: 'ربع سنوي', title: 'الربع سنوية', icon: ICON_PATHS.WorkControl },
+              { code: 'نصف سنوي', title: 'النصف سنوية', icon: ICON_PATHS.WorkControl },
+              { code: 'سنوي', title: 'السنوية', icon: ICON_PATHS.WorkControl }
+            ]
+          },
           { code: 'INCIDENT REPORT', title: 'INCIDENT REPORT', icon: ICON_PATHS.Electrical },
           { code: 'MAJOR WORK', title: 'MAJOR WORK', icon: ICON_PATHS.Mechanical },
           { code: 'TRAINING', title: 'TRAINING', icon: ICON_PATHS.Communication }
