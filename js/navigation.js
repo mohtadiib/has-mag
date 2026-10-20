@@ -295,6 +295,8 @@ function renderSubHeader() {
       systems: 'الأنظمة الفنية',
       locations: 'المواقع والمرافق',
       employees: 'الموظفين والورديات',
+      entities: 'الجهات المبلغة',
+      priorities: 'أولويات أوامر العمل',
       tanksConfig: 'سعات الخزانات',
       catalog: 'الأصناف والأصول والمقاولين'
     };

@@ -108,7 +108,11 @@ function renderModuleSubSections() {
             <div onclick="openSubSection('${mod.id}', '${sub.id}')" class="cursor-pointer flex flex-col items-center justify-start group relative py-3 px-2 rounded-2xl hover:bg-[#ede7e2]/40 active:scale-95 transition duration-150 select-none">
               <div class="relative flex items-center justify-center transition-transform duration-200 group-hover:scale-110">
                 <span class="absolute -top-1.5 -right-2 px-2 py-0.5 rounded-full bg-[#47525e] text-white text-[10px] font-extrabold shadow-xs leading-none border border-white z-10">${recCount}</span>
-                <img src="${sub.icon}" alt="${sub.shortTitle}" class="w-12 h-12 object-contain filter drop-shadow-[0_3px_6px_rgba(0,0,0,0.08)]" />
+                ${(!sub.icon || (!sub.icon.startsWith('data:') && !sub.icon.startsWith('http') && !sub.icon.includes('/'))) ? `
+                  <span class="text-4xl leading-none select-none filter drop-shadow-[0_3px_6px_rgba(0,0,0,0.08)]" role="img" aria-label="${sub.shortTitle}">${sub.textIcon || sub.icon || '📁'}</span>
+                ` : `
+                  <img src="${sub.icon}" alt="${sub.shortTitle}" class="w-12 h-12 object-contain filter drop-shadow-[0_3px_6px_rgba(0,0,0,0.08)]" />
+                `}
               </div>
               <span class="text-xs font-bold text-[#1f2937] group-hover:text-[#db6b49] mt-2.5 leading-tight text-center transition tracking-tight">${sub.shortTitle}</span>
             </div>
@@ -127,24 +131,10 @@ function renderSubSectionRecords() {
   const mod = getModule();
   const sub = getSubSection();
 
-  const subTabsHtml = mod.subSections.length > 1 ? `
-    <div class="bg-white px-3 pt-2 border-b border-[#e5dfd9] flex items-end gap-1.5 overflow-x-auto no-scrollbar shadow-2xs">
-      ${mod.subSections.map(s => {
-        const isSubActive = s.id === sub.id;
-        return `
-          <button type="button" onclick="openSubSection('${mod.id}', '${s.id}')" class="fit-tab shrink-0 px-3 py-2 rounded-t-xl text-xs font-extrabold whitespace-nowrap transition-all border-b-[3px] ${isSubActive ? 'bg-[#fdece6]/70 text-[#db6b49] border-[#db6b49]' : 'text-[#64748b] border-transparent hover:text-[#1f2937]'}">
-            <span>${s.shortTitle}</span>
-          </button>
-        `;
-      }).join('')}
-    </div>
-  ` : '';
-
   // Case A1: 3rd-Level Child Sub-Icons (Top Level: Group Icons & Direct Options)
   if (sub.hasChildSubIcons && state.activeChildSubCode === 'الكل') {
     return `
       <div class="fade-in">
-        ${subTabsHtml}
         <div class="p-3.5 space-y-3">
           <div class="flex items-center justify-between px-0.5">
             <span class="text-xs font-extrabold text-[#111827]">اختر التصنيف الفرعي:</span>
@@ -162,7 +152,11 @@ function renderSubSectionRecords() {
                 <div onclick="state.activeChildSubCode='${c.code}'; renderApp();" class="cursor-pointer flex flex-col items-center justify-start group relative py-2 px-1 rounded-xl hover:bg-[#ede7e2]/40 active:scale-95 transition duration-150 select-none">
                   <div class="relative flex items-center justify-center transition-transform duration-200 group-hover:scale-110">
                     <span class="absolute -top-1 -right-2 px-1.5 py-0.5 rounded-full bg-[#47525e] text-white text-[9px] font-extrabold shadow-xs leading-none border border-white z-10">${cnt}</span>
-                    <img src="${c.icon}" alt="${c.title}" class="w-10 h-10 object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.08)]" />
+                    ${(!c.icon || (!c.icon.startsWith('data:') && !c.icon.startsWith('http') && !c.icon.includes('/'))) ? `
+                      <span class="text-3xl leading-none select-none filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.07)]" role="img" aria-label="${c.title}">${c.textIcon || c.icon || '📄'}</span>
+                    ` : `
+                      <img src="${c.icon}" alt="${c.title}" class="w-10 h-10 object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.08)]" />
+                    `}
                   </div>
                   <span class="text-[11px] font-bold text-[#111827] group-hover:text-[#db6b49] mt-2 leading-tight text-center transition tracking-tight">${c.title}</span>
                 </div>
@@ -180,7 +174,6 @@ function renderSubSectionRecords() {
     const groupRecords = (sub.records || []).filter(r => (activeGroup.children || []).some(ch => ch.code === r[sub.childSubField]));
     return `
       <div class="fade-in">
-        ${subTabsHtml}
         <div class="p-3.5 space-y-3">
           <div class="flex items-center justify-between px-0.5">
             <span class="text-xs font-extrabold text-[#111827]">اختر تقرير الصيانة الوقائية:</span>
@@ -196,7 +189,11 @@ function renderSubSectionRecords() {
                 <div onclick="state.activeChildSubCode='${c.code}'; renderApp();" class="cursor-pointer flex flex-col items-center justify-start group relative py-2 px-1 rounded-xl hover:bg-[#ede7e2]/40 active:scale-95 transition duration-150 select-none">
                   <div class="relative flex items-center justify-center transition-transform duration-200 group-hover:scale-110">
                     <span class="absolute -top-1 -right-2 px-1.5 py-0.5 rounded-full bg-[#47525e] text-white text-[9px] font-extrabold shadow-xs leading-none border border-white z-10">${cnt}</span>
-                    <img src="${c.icon}" alt="${c.title}" class="w-10 h-10 object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.08)]" />
+                    ${(!c.icon || (!c.icon.startsWith('data:') && !c.icon.startsWith('http') && !c.icon.includes('/'))) ? `
+                      <span class="text-3xl leading-none select-none filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.07)]" role="img" aria-label="${c.title}">${c.textIcon || c.icon || '📄'}</span>
+                    ` : `
+                      <img src="${c.icon}" alt="${c.title}" class="w-10 h-10 object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.08)]" />
+                    `}
                   </div>
                   <span class="text-[11px] font-bold text-[#111827] group-hover:text-[#db6b49] mt-2 leading-tight text-center transition tracking-tight">${c.title}</span>
                 </div>
@@ -219,7 +216,6 @@ function renderSubSectionRecords() {
 
     return `
       <div class="fade-in">
-        ${subTabsHtml}
         <div class="p-3.5 space-y-3">
           ${stations.length > 0 ? `
             <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
@@ -289,7 +285,6 @@ function renderSubSectionRecords() {
 
   return `
     <div class="fade-in">
-      ${subTabsHtml}
       <div class="p-3.5 space-y-3">
 
         ${sub.hasChildSubIcons ? (() => {
@@ -394,12 +389,13 @@ function renderSubSectionRecords() {
               `;
             }
 
-            // Case 2: أوامر العمل (Work Orders) - بطاقة مختصرة وأنيقة
-            if (sub.id === 'sub_work_orders') {
+            // Case 2: أوامر العمل (Work Orders & RM) - بطاقة مختصرة وأنيقة
+            if (sub.id === 'sub_work_orders' || sub.id === 'sub_rm_work_orders') {
               const pClass = !rec.priority ? 'bg-slate-500 text-white' :
-                rec.priority.includes('طارئة') ? 'bg-red-500 text-white' :
-                rec.priority.includes('عالية') ? 'bg-[#ea580c] text-white' :
-                rec.priority.includes('متوسطة') ? 'bg-amber-500 text-white' : 'bg-slate-500 text-white';
+                (rec.priority === 'P1' || rec.priority.startsWith('R1') || rec.priority.includes('حرجة') || rec.priority.includes('فورية')) ? 'bg-red-600 text-white' :
+                (rec.priority === 'P2' || rec.priority.startsWith('R2') || rec.priority.includes('طارئة')) ? 'bg-red-500 text-white' :
+                (rec.priority.startsWith('P3') || rec.priority.startsWith('R3') || rec.priority.includes('عالية')) ? 'bg-[#ea580c] text-white' :
+                (rec.priority === 'R4' || rec.priority.includes('متوسطة')) ? 'bg-amber-500 text-white' : 'bg-slate-500 text-white';
 
               return `
                 <div onclick="openRecordDetails('${rec.id}', false)" class="cursor-pointer bg-white hover:border-[#db6b49] rounded-2xl border border-[#ede7e2] p-3 shadow-2xs transition space-y-1.5">
@@ -625,7 +621,7 @@ function renderRecordDetailsView() {
         </div>
       ` : ''}
 
-      ${sub.id === 'sub_work_orders' && existing.id ? `
+      ${(sub.id === 'sub_work_orders' || sub.id === 'sub_rm_work_orders') && existing.id ? `
         <div class="bg-white rounded-2xl border border-[#ede7e2] p-3.5 shadow-2xs space-y-2">
           <div class="flex items-center justify-between">
             <span class="font-bold text-xs text-[#111827]">مؤشرات أمر العمل (${existing.woNo || existing.id})</span>
@@ -637,7 +633,7 @@ function renderRecordDetailsView() {
               <strong class="text-[#9a3412] font-black text-xs block">${existing.responseTime || '—'}</strong>
             </div>
             <div class="p-2 rounded-xl bg-[#f0fdf4] border border-[#bbf7d0]">
-              <span class="text-[#15803d] block font-bold text-[9px] mb-0.5">🛠️ زمن التصحيح:</span>
+              <span class="text-[#15803d] block font-bold text-[9px] mb-0.5">${sub.id === 'sub_rm_work_orders' ? '⚡ زمن المعالجة:' : '🛠️ زمن التصحيح:'}</span>
               <strong class="text-[#166534] font-black text-xs block">${existing.correctionDuration || '—'}</strong>
             </div>
           </div>
@@ -657,6 +653,10 @@ function renderRecordDetailsView() {
           if (f.type === 'master_entity') {
             const entities = MASTER_DATA.entities || [];
             const opts = entities.map(e => `<option value="${e}" ${val === e ? 'selected' : ''}>${e}</option>`).join('');
+            inputHtml = `<select name="${f.key}" class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-[#faf7f5] font-semibold">${opts}</select>`;
+          } else if (f.type === 'master_priority') {
+            const priorities = MASTER_DATA.priorities || [];
+            const opts = priorities.map(p => `<option value="${p}" ${val === p ? 'selected' : ''}>${p}</option>`).join('');
             inputHtml = `<select name="${f.key}" class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-[#faf7f5] font-semibold">${opts}</select>`;
           } else if (f.type === 'master_dept') {
             const opts = MASTER_DATA.departments.map(d => `<option value="${d.name}" ${val === d.name ? 'selected' : ''}>${d.name}</option>`).join('');
@@ -782,6 +782,8 @@ function renderMoreSettingsTab() {
     { id: 'systems', icon: '⚙️', title: 'الأنظمة الفنية', count: MASTER_DATA.systems.length },
     { id: 'locations', icon: '📍', title: 'المواقع والمرافق', count: MASTER_DATA.locations.length },
     { id: 'employees', icon: '👥', title: 'الموظفين والورديات', count: MASTER_DATA.employees.length },
+    { id: 'entities', icon: '🏢', title: 'الجهات المبلغة', count: MASTER_DATA.entities.length },
+    { id: 'priorities', icon: '⚡', title: 'أولويات أوامر العمل', count: MASTER_DATA.priorities.length },
     { id: 'tanksConfig', icon: '🛢️', title: 'سعات الخزانات', count: MASTER_DATA.tanksConfig.length },
     { id: 'catalog', icon: '📦', title: 'الأصناف والأصول والمقاولين', count: MASTER_DATA.catalog.length }
   ];
@@ -916,6 +918,44 @@ function renderMasterDataEditor(cat) {
             </div>
           </div>
         `).join('')}
+      </div>
+    `;
+  }
+
+  if (cat === 'entities') {
+    return `
+      <div class="p-3.5 space-y-2 fade-in text-xs">
+        ${MASTER_DATA.entities.map((e, idx) => `
+          <div class="bg-white rounded-2xl p-3 border border-[#ede7e2] flex items-center justify-between">
+            <div class="font-bold text-[#111827] flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-[#fdece6] text-[#db6b49] flex items-center justify-center font-bold text-xs">${idx + 1}</span>
+              <span>${e}</span>
+            </div>
+            <button type="button" onclick="MASTER_DATA.entities.splice(${idx},1); renderApp();" class="text-red-600 font-bold text-[11px]">حذف</button>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  if (cat === 'priorities') {
+    return `
+      <div class="p-3.5 space-y-2 fade-in text-xs">
+        ${MASTER_DATA.priorities.map((p, idx) => {
+          const pClass = (p === 'P1' || p.startsWith('R1')) ? 'bg-red-600 text-white' :
+            (p === 'P2' || p.startsWith('R2')) ? 'bg-red-500 text-white' :
+            (p.startsWith('P3') || p.startsWith('R3')) ? 'bg-[#ea580c] text-white' :
+            (p === 'R4') ? 'bg-amber-500 text-white' : 'bg-slate-500 text-white';
+          return `
+            <div class="bg-white rounded-2xl p-3 border border-[#ede7e2] flex items-center justify-between">
+              <div class="font-bold text-[#111827] flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded text-[10px] font-black ${pClass}">${p}</span>
+                <span class="text-xs text-[#4b5563]">أولوية معتمدة SLA</span>
+              </div>
+              <button type="button" onclick="MASTER_DATA.priorities.splice(${idx},1); renderApp();" class="text-red-600 font-bold text-[11px]">حذف</button>
+            </div>
+          `;
+        }).join('')}
       </div>
     `;
   }

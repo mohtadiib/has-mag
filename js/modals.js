@@ -119,7 +119,7 @@ function openAddModal(modId, subId) {
     if (sub.hasChildSubIcons && f.key === sub.childSubField && state.activeChildSubCode !== 'الكل' && state.activeChildSubCode !== 'عرض الكل') {
       val = state.activeChildSubCode;
     } else if (f.key === 'woNo') {
-      val = 'WO-2026-' + Math.floor(503 + Math.random() * 400);
+      val = (sub.id === 'sub_rm_work_orders' ? 'RM-2026-' : 'WO-2026-') + Math.floor(503 + Math.random() * 400);
     } else if (f.key === 'sprNo') {
       val = 'SPR-2026-0' + Math.floor(100 + Math.random() * 800);
     } else if (f.key === 'mrfNo') {
@@ -139,6 +139,17 @@ function openAddModal(modId, subId) {
     if (f.type === 'master_entity') {
       const entities = MASTER_DATA.entities || [];
       const opts = entities.map(e => `<option value="${e}">${e}</option>`).join('');
+      return `
+        <div class="space-y-1">
+          <label class="font-bold text-[#1f2937] block">${f.label}</label>
+          <select name="${f.key}" class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-white font-semibold">${opts}</select>
+        </div>
+      `;
+    }
+
+    if (f.type === 'master_priority') {
+      const priorities = MASTER_DATA.priorities || [];
+      const opts = priorities.map(p => `<option value="${p}">${p}</option>`).join('');
       return `
         <div class="space-y-1">
           <label class="font-bold text-[#1f2937] block">${f.label}</label>
@@ -453,6 +464,20 @@ function openMasterAddModal(cat) {
         <button type="submit" class="w-full py-2.5 rounded-xl bg-[#db6b49] text-white font-extrabold">حفظ</button>
       </form>
     `, '👤');
+  } else if (cat === 'entities') {
+    openBottomSheet('إضافة جهة مبلغة', `
+      <form onsubmit="addMasterEntity(event); closeBottomSheet();" class="space-y-2.5 text-xs">
+        <input type="text" name="name" placeholder="اسم الجهة المبلغة..." required class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-white font-bold" />
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-[#db6b49] text-white font-extrabold">حفظ</button>
+      </form>
+    `, '🏢');
+  } else if (cat === 'priorities') {
+    openBottomSheet('إضافة أولوية أمر عمل', `
+      <form onsubmit="addMasterPriority(event); closeBottomSheet();" class="space-y-2.5 text-xs">
+        <input type="text" name="name" placeholder="رمز الأولوية (مثال: P1, R1h)..." required class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-white font-bold" />
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-[#db6b49] text-white font-extrabold">حفظ</button>
+      </form>
+    `, '⚡');
   } else {
     openBottomSheet('إضافة صنف / أصل / مقاول', `
       <form onsubmit="addMasterCatalog(event); closeBottomSheet();" class="space-y-2.5 text-xs">
@@ -479,7 +504,7 @@ function convertReportToWorkOrder(repId) {
   woSub.records.unshift({
     id: 'WO-' + Date.now(),
     woNo: newWoNo,
-    priority: 'عالية (High)',
+    priority: 'P2',
     department: rep.department || MASTER_DATA.departments[0].name,
     system: MASTER_DATA.systems[0].name,
     technician: rep.technician || '',
@@ -505,6 +530,7 @@ function convertFaultToWorkOrder(faultId) {
   woSub.records.unshift({
     id: 'WO-' + Date.now(),
     woNo: newWoNo,
+    priority: 'P2',
     woDateTime: '2026-10-19 16:10',
     department: rec.department,
     system: rec.equipmentName,
@@ -548,6 +574,7 @@ function convertTicketToWorkOrder(tktId) {
   woSub.records.unshift({
     id: 'WO-' + Date.now(),
     woNo: newWoNo,
+    priority: 'P2',
     woDateTime: '2026-10-19 16:15',
     department: tkt.department,
     system: MASTER_DATA.systems[0].name,
@@ -751,6 +778,28 @@ function toggleTankLock(idx) {
   MASTER_DATA.tanksConfig[idx].locked = !MASTER_DATA.tanksConfig[idx].locked;
   showToast(MASTER_DATA.tanksConfig[idx].locked ? 'تم قفل السعة 🔒' : 'تم فك القفل 🔓');
   renderApp();
+}
+
+function addMasterEntity(e) {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const name = (fd.get('name') || '').trim();
+  if (name && !MASTER_DATA.entities.includes(name)) {
+    MASTER_DATA.entities.push(name);
+    showToast('تمت إضافة الجهة المبلغة');
+    renderApp();
+  }
+}
+
+function addMasterPriority(e) {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const name = (fd.get('name') || '').trim();
+  if (name && !MASTER_DATA.priorities.includes(name)) {
+    MASTER_DATA.priorities.push(name);
+    showToast('تمت إضافة الأولوية');
+    renderApp();
+  }
 }
 
 // ============================================================================

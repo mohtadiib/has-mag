@@ -66,28 +66,45 @@ const MASTER_DATA = {
     { id: 'CAT-07', type: 'مقاول خارجي', name: 'مؤسسة التقنية المتقدمة للأنظمة' }
   ],
   entities: [
-    'صالة الركاب الدولية 1',
-    'صالة الركاب الداخلية 2',
-    'برج المراقبة الجوية (ATC)',
-    'إدارة المطار والعمليات',
-    'الساحة الجوية (Airside)',
-    'مبنى الشحن الجوي والجمارك',
-    'صالة كبار الشخصيات (VIP)',
-    'محطة الإطفاء والإنقاذ (ARFF)',
-    'بوابة المغادرة 1',
-    'بوابة المغادرة 2',
-    'بوابة المغادرة 3',
-    'صالات القدوم والجمارك',
-    'محطة توليد الكهرباء والمولدات',
-    'محطة تزويد الوقود',
-    'محطة معالجة وضخ المياه',
-    'أمن المطار والسلامة المهنية'
+    'الشرطة الجوية',
+    'الجوازات',
+    'الجمارك',
+    'المباحث',
+    'المدير المناوب',
+    'العمليات',
+    'الشرطة المدنية',
+    'شرطة المرور',
+    'إدارة المطار',
+    'الإطفاء',
+    'METCO',
+    'الأرصاد الجوي',
+    'سانس',
+    'العيادة',
+    'الصيانة السعودية',
+    'التشغيل التجاري'
   ],
   priorities: [
-    'طارئة (Emergency)',
-    'عالية (High)',
-    'متوسطة (Medium)',
-    'منخفضة (Low)'
+    'P1',
+    'P2',
+    'R4',
+    'P3a',
+    'P3b',
+    'P3c',
+    'R1h',
+    'R2h',
+    'R3h',
+    'P3e',
+    'R1e',
+    'R2e',
+    'R3e',
+    'P3f',
+    'P3s',
+    'R1s',
+    'R2s',
+    'R3s',
+    'R1L',
+    'R2L',
+    'R3L'
   ]
 };
 
@@ -125,12 +142,12 @@ const SYSTEM_MODULES = [
         textIcon: '📢',
         shortTitle: 'البلاغات اليومية',
         helpText: 'تسجيل ومتابعة البلاغات الواردة من الجهات وتوجيه الفنيين المبتعثين وإغلاق البلاغات.',
-        icon: ICON_PATHS.WorkControl,
+        icon: '📢',
         filterPills: { field: 'status', options: ['الكل', 'مفتوح', 'مغلق'] },
         branchByDept: true,
         summaryKeys: [
           { key: 'reportDateTime', label: 'التاريخ والزمن' },
-          { key: 'entity', label: 'الجهة' },
+          { key: 'entity', label: 'الجهة المبلغة' },
           { key: 'reporterName', label: 'المُبلّغ' },
           { key: 'department', label: 'القسم' },
           { key: 'technician', label: 'الفني المبتعث' },
@@ -138,7 +155,7 @@ const SYSTEM_MODULES = [
           { key: 'problemDesc', label: 'وصف المشكلة' }
         ],
         fields: [
-          { key: 'entity', label: 'الجهة', type: 'master_entity' },
+          { key: 'entity', label: 'الجهة المبلغة', type: 'master_entity' },
           { key: 'reporterName', label: 'اسم المُبلّغ', type: 'text' },
           { key: 'department', label: 'القسم', type: 'master_dept' },
           { key: 'technician', label: 'الفني المبتعث', type: 'master_employee' },
@@ -152,7 +169,7 @@ const SYSTEM_MODULES = [
         records: [
           {
             id: 'BLG-101',
-            entity: 'صالة الركاب الدولية 1',
+            entity: 'الجوازات',
             reporterName: 'وليد الشهري',
             department: 'الميكانيكا (Mechanical)',
             technician: 'سعيد عوض المالكي',
@@ -166,7 +183,7 @@ const SYSTEM_MODULES = [
           },
           {
             id: 'BLG-102',
-            entity: 'برج المراقبة الجوية (ATC)',
+            entity: 'العمليات',
             reporterName: 'فهد العتيبي',
             department: 'التكييف والتبريد (HVAC)',
             technician: 'محمد عبد الله القحطاني',
@@ -180,7 +197,7 @@ const SYSTEM_MODULES = [
           },
           {
             id: 'BLG-103',
-            entity: 'الساحة الجوية (Airside)',
+            entity: 'إدارة المطار',
             reporterName: 'سلطان الحربي',
             department: 'الإنارة الملاحية (AFL)',
             technician: 'رامي كمال النجار',
@@ -199,7 +216,7 @@ const SYSTEM_MODULES = [
         textIcon: '🔧',
         shortTitle: 'أوامر العمل التصحيحية',
         helpText: 'إصدار ومتابعة أوامر العمل التصحيحية للأقسام والأنظمة وتوثيق أزمنة الاستجابة والتصحيح.',
-        icon: ICON_PATHS.Mechanical,
+        icon: '🔧',
         filterPills: { field: 'status', options: ['الكل', 'مفتوح', 'مغلق'] },
         branchByDept: true,
         summaryKeys: [
@@ -214,7 +231,7 @@ const SYSTEM_MODULES = [
         ],
         fields: [
           { key: 'woNo', label: 'رقم أمر العمل', type: 'text' },
-          { key: 'priority', label: 'الأولوية', type: 'select', options: ['طارئة (Emergency)', 'عالية (High)', 'متوسطة (Medium)', 'منخفضة (Low)'] },
+          { key: 'priority', label: 'أولوية أمر العمل', type: 'master_priority', options: MASTER_DATA.priorities },
           { key: 'department', label: 'القسم المختص', type: 'master_dept' },
           { key: 'system', label: 'النظام الفني', type: 'master_system' },
           { key: 'status', label: 'الحالة', type: 'select', options: ['مفتوح', 'مغلق'] },
@@ -230,7 +247,7 @@ const SYSTEM_MODULES = [
           {
             id: 'WO-501',
             woNo: 'WO-2026-501',
-            priority: 'عالية (High)',
+            priority: 'P2',
             department: 'الميكانيكا (Mechanical)',
             system: 'نظام مناولة وسيور الأمتعة (BHS)',
             technician: 'سعيد عوض المالكي',
@@ -245,7 +262,7 @@ const SYSTEM_MODULES = [
           {
             id: 'WO-502',
             woNo: 'WO-2026-502',
-            priority: 'طارئة (Emergency)',
+            priority: 'P1',
             department: 'الإنارة الملاحية (AFL)',
             system: 'نظام الإنارة الملاحية للمدرج (AGL)',
             technician: 'رامي كمال النجار',
@@ -260,45 +277,128 @@ const SYSTEM_MODULES = [
         ]
       },
       {
+        id: 'sub_rm_work_orders',
+        textIcon: '⚡',
+        shortTitle: 'أوامر العمل التفاعلية (RM)',
+        helpText: 'إصدار ومتابعة أوامر العمل التفاعلية الفورية (Reactive Maintenance) للتعامل السريع مع الأعطال والملاحظات الطارئة.',
+        icon: '⚡',
+        filterPills: { field: 'status', options: ['الكل', 'مفتوح', 'مغلق'] },
+        branchByDept: true,
+        summaryKeys: [
+          { key: 'woNo', label: 'رقم أمر العمل (RM)' },
+          { key: 'priority', label: 'الأولوية' },
+          { key: 'department', label: 'القسم' },
+          { key: 'system', label: 'النظام' },
+          { key: 'status', label: 'الحالة' },
+          { key: 'responseTime', label: 'زمن الاستجابة' },
+          { key: 'correctionDuration', label: 'زمن المعالجة' },
+          { key: 'closeDateTime', label: 'تاريخ الإغلاق' }
+        ],
+        fields: [
+          { key: 'woNo', label: 'رقم أمر العمل (RM)', type: 'text' },
+          { key: 'priority', label: 'أولوية أمر العمل (RM)', type: 'master_priority', options: MASTER_DATA.priorities },
+          { key: 'department', label: 'القسم المختص', type: 'master_dept' },
+          { key: 'system', label: 'النظام الفني', type: 'master_system' },
+          { key: 'status', label: 'الحالة', type: 'select', options: ['مفتوح', 'مغلق'] },
+          { key: 'technician', label: 'الفني المكلف', type: 'master_employee' },
+          { key: 'problemDesc', label: 'وصف العطل التفاعلي', type: 'textarea' },
+          { key: 'woDateTime', label: 'تاريخ ووقت استلام البلاغ', type: 'text' },
+          { key: 'responseTime', label: 'زمن الاستجابة (من استلام البلاغ إلى مباشرة العمل)', type: 'text' },
+          { key: 'correctionDuration', label: 'زمن المعالجة (من مباشرة العمل إلى إتمام الإصلاح)', type: 'text' },
+          { key: 'closeDateTime', label: 'تاريخ ووقت الإغلاق', type: 'datetime-local' },
+          { key: 'materialsUsed', label: 'القطع / المواد المستخدمة', type: 'text' }
+        ],
+        records: [
+          {
+            id: 'RM-601',
+            woNo: 'RM-2026-601',
+            priority: 'P1',
+            department: 'الكهرباء (Electrical)',
+            system: 'لوحات التوزيع الرئيسية والفرعية',
+            technician: 'محمد عبد الله القحطاني',
+            status: 'مغلق',
+            woDateTime: '2026-10-19 09:10',
+            responseTime: '5 دقائق',
+            correctionDuration: '35 دقيقة',
+            closeDateTime: '2026-10-19 09:50',
+            problemDesc: 'انقطاع مفاجئ في تغذية صالة القدوم 2 - تم التحويل الفوري لقاطع الدعم وعزل الخلل',
+            materialsUsed: 'فيوز ضغط منخفض 250A + مفتاح تحويل'
+          },
+          {
+            id: 'RM-602',
+            woNo: 'RM-2026-602',
+            priority: 'P2',
+            department: 'الميكانيكا (Mechanical)',
+            system: 'نظام ضخ وتوزيع المياه (Plumbing & Pumps)',
+            technician: 'سعيد عوض المالكي',
+            status: 'مفتوح',
+            woDateTime: '2026-10-19 13:45',
+            responseTime: '7 دقائق',
+            correctionDuration: 'جاري المعالجة',
+            closeDateTime: '',
+            problemDesc: 'كسر مفاجئ في أنبوب خط تغذية دورات مياه المغادرة الدولية - جاري الإغلاق المؤقت واستبدال الوصلة',
+            materialsUsed: 'وصلة ضغط عالي 2 بوصة + محبس فراشة'
+          },
+          {
+            id: 'RM-603',
+            woNo: 'RM-2026-603',
+            priority: 'P3a',
+            department: 'الأنظمة والاتصالات (Telecom)',
+            system: 'نظام شاشات عرض معلومات الرحلات (FIDS)',
+            technician: 'عبد الله صالح الشمري',
+            status: 'مفتوح',
+            woDateTime: '2026-10-19 15:20',
+            responseTime: '10 دقائق',
+            correctionDuration: 'جاري المعالجة',
+            closeDateTime: '',
+            problemDesc: 'توقف مفاجئ في 3 شاشات عرض رحلات بصالة المغادرة الداخلية - إعادة تشغيل السيرفر الفرعي وبرمجة المنفذ',
+            materialsUsed: 'كابل HDMI نشط + محول شبكة LAN'
+          }
+        ]
+      },
+      {
         id: 'sub_pdf_reports',
         textIcon: '📄',
         shortTitle: 'التقارير (PDF)',
         helpText: 'أرشيف التقارير التشغيلية مصنفة تحت القسم ثم النظام ثم اسم التقرير.',
-        icon: ICON_PATHS.WorkControl,
+        icon: '📄',
         hasChildSubIcons: true,
         childSubField: 'reportType',
         childSubOptions: [
           {
             code: 'الصيانة الوقائية',
             title: 'الصيانة الوقائية (Preventive maintenance)',
-            icon: ICON_PATHS.WorkControl,
+            icon: '🛠️',
+            textIcon: '🛠️',
             isGroup: true,
             children: [
-              { code: 'يومي', title: 'اليومية', icon: ICON_PATHS.WorkControl },
-              { code: 'أسبوعي', title: 'الأسبوعية', icon: ICON_PATHS.WorkControl },
-              { code: 'شهري', title: 'الشهرية', icon: ICON_PATHS.WorkControl },
-              { code: 'ربع سنوي', title: 'الربع سنوية', icon: ICON_PATHS.WorkControl },
-              { code: 'نصف سنوي', title: 'النصف سنوية', icon: ICON_PATHS.WorkControl },
-              { code: 'سنوي', title: 'السنوية', icon: ICON_PATHS.WorkControl }
+              { code: 'يومي', title: 'اليومية', icon: '📅', textIcon: '📅' },
+              { code: 'أسبوعي', title: 'الأسبوعية', icon: '📆', textIcon: '📆' },
+              { code: 'شهري', title: 'الشهرية', icon: '🗓️', textIcon: '🗓️' },
+              { code: 'ربع سنوي', title: 'الربع سنوية', icon: '📊', textIcon: '📊' },
+              { code: 'نصف سنوي', title: 'النصف سنوية', icon: '📈', textIcon: '📈' },
+              { code: 'سنوي', title: 'السنوية', icon: '📑', textIcon: '📑' }
             ]
           },
-          { code: 'INCIDENT REPORT', title: 'INCIDENT REPORT', icon: ICON_PATHS.Electrical },
-          { code: 'MAJOR WORK', title: 'MAJOR WORK', icon: ICON_PATHS.Mechanical },
-          { code: 'TRAINING', title: 'TRAINING', icon: ICON_PATHS.Communication }
+          { code: 'INCIDENT REPORT', title: 'INCIDENT REPORT', icon: '⚠️', textIcon: '⚠️' },
+          { code: 'MAJOR WORK', title: 'MAJOR WORK', icon: '🏗️', textIcon: '🏗️' },
+          { code: 'TRAINING', title: 'TRAINING', icon: '🎓', textIcon: '🎓' },
+          { code: 'تقارير السلامة', title: 'تقارير السلامة', icon: '🛡️', textIcon: '🛡️' },
+          { code: 'التقارير الفنية', title: 'التقارير الفنية', icon: '📐', textIcon: '📐' }
         ],
         branchByDept: true,
         summaryKeys: [
           { key: 'department', label: 'القسم' },
           { key: 'system', label: 'النظام' },
           { key: 'reportTitle', label: 'اسم التقرير' },
-          { key: 'reportType', label: 'الفترة' },
+          { key: 'reportType', label: 'الفترة/التصنيف' },
           { key: 'fileName', label: 'المستند' }
         ],
         fields: [
           { key: 'department', label: 'القسم', type: 'master_dept' },
           { key: 'system', label: 'النظام', type: 'master_system' },
           { key: 'reportTitle', label: 'اسم التقرير', type: 'text' },
-          { key: 'reportType', label: 'فئة/فترة التقرير', type: 'select', options: ['يومي', 'أسبوعي', 'شهري', 'ربع سنوي', 'نصف سنوي', 'سنوي', 'INCIDENT REPORT', 'MAJOR WORK', 'TRAINING'] },
+          { key: 'reportType', label: 'فئة/نوع التقرير', type: 'select', options: ['يومي', 'أسبوعي', 'شهري', 'ربع سنوي', 'نصف سنوي', 'سنوي', 'INCIDENT REPORT', 'MAJOR WORK', 'TRAINING', 'تقارير السلامة', 'التقارير الفنية'] },
           { key: 'uploadDate', label: 'تاريخ الرفع', type: 'date' },
           { key: 'fileName', label: 'مستند الـ PDF المرفق', type: 'text' }
         ],
@@ -356,6 +456,42 @@ const SYSTEM_MODULES = [
             reportType: 'TRAINING',
             uploadDate: '2026-10-12',
             fileName: 'AFL_Field_Calibration_Training.pdf'
+          },
+          {
+            id: 'REP-07',
+            department: 'الميكانيكا (Mechanical)',
+            system: 'نظام مكافحة الحريق والإنذار (Fire Fighting)',
+            reportTitle: 'تقرير السلامة التشغيلية وفحص شبكات الإطفاء بمبنى الركاب',
+            reportType: 'تقارير السلامة',
+            uploadDate: '2026-10-18',
+            fileName: 'Safety_Audit_Terminal_Fire_System.pdf'
+          },
+          {
+            id: 'REP-08',
+            department: 'الإنارة الملاحية (AFL)',
+            system: 'نظام الإنارة الملاحية للمدرج (AGL)',
+            reportTitle: 'تقرير تقييم السلامة الميدانية لحركة الطائرات والممرات الملاحية',
+            reportType: 'تقارير السلامة',
+            uploadDate: '2026-10-16',
+            fileName: 'Airside_Safety_Inspection_AFL.pdf'
+          },
+          {
+            id: 'REP-09',
+            department: 'الكهرباء (Electrical)',
+            system: 'المولدات الاحتياطية ومحطات التحويل',
+            reportTitle: 'التقرير الفني لتقييم كفاءة العوازل وتحليل الأحمال للقطاع الجنوبي',
+            reportType: 'التقارير الفنية',
+            uploadDate: '2026-10-17',
+            fileName: 'Technical_Assessment_Substation_Loads.pdf'
+          },
+          {
+            id: 'REP-10',
+            department: 'التكييف والتبريد (HVAC)',
+            system: 'نظام التبريد المركزي (Chillers & AHU)',
+            reportTitle: 'التقرير الفني لاختبار كفاءة ضواغط الشلرات رقم 3 و 4',
+            reportType: 'التقارير الفنية',
+            uploadDate: '2026-10-15',
+            fileName: 'HVAC_Technical_Audit_Chillers.pdf'
           }
         ]
       }
