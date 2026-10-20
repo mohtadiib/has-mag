@@ -41,9 +41,9 @@ body {
 
     <!-- 1. Top Dark Slate System Status Bar -->
     <div
-      class="bg-[#47525e] text-white py-1.5 px-3 text-center text-[11px] font-medium shrink-0 shadow-xs flex items-center justify-between">
+      class="bg-[#47525e] text-white py-1.5 px-3 text-center text-xs font-bold shrink-0 shadow-xs flex items-center justify-between">
       <span class="w-5"></span>
-      <span class="truncate font-bold">مطار حائل الدولي • التشغيل والصيانة</span>
+      <span class="truncate font-black text-xs sm:text-sm">مطار حائل الدولي • التشغيل والصيانة</span>
       <button type="button" onclick="openHelpSheet('excel_tree')"
         class="w-5 h-5 rounded-full bg-white/15 hover:bg-white/25 text-white text-[11px] font-bold flex items-center justify-center transition shrink-0"
         title="دليل وحدات النظام">؟</button>
@@ -54,7 +54,7 @@ body {
       class="bg-[#faf7f5] px-3.5 py-2.5 border-b border-[#ece6e1] flex items-center justify-between shrink-0">
       <div class="flex items-center">
         <img
-          src="data:image/png;base64,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"
+          src="data:image/png;base64,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"
           alt="MAG المجال العربي" class="h-9 w-auto object-contain" />
       </div>
 
@@ -76,9 +76,8 @@ body {
       </div>
     </header>
 
-    <!-- 3. Peach Subtitle Banner -->
     <div id="peachBanner"
-      class="bg-[#fdece6] text-[#df6426] py-1.5 px-3 text-center text-xs font-bold border-b border-[#f9d8cc] shrink-0">
+      class="bg-[#fdece6] text-[#df6426] py-2 px-3 text-center text-sm sm:text-base font-black border-b border-[#f9d8cc] shrink-0 tracking-wide">
       نظام إدارة وتشغيل وصيانة مطار حائل الدولي
     </div>
 
@@ -1579,7 +1578,7 @@ function renderSubHeader() {
           <button type="button" onclick="${backToOrigin}" class="w-8 h-8 rounded-xl bg-[#faf7f5] hover:bg-[#f3ece6] border border-[#e5dfd9] text-[#111827] flex items-center justify-center shrink-0 active:scale-95 transition" title="رجوع">
             ${backIconSvg}
           </button>
-          <h2 class="font-extrabold text-xs sm:text-sm text-[#111827] truncate">قسم الجولات والأقسام</h2>
+          <h2 class="font-black text-lg text-[#111827] truncate">قسم الجولات والأقسام</h2>
         </div>
         <button type="button" onclick="openNewInspectionSheet()" class="px-3 py-1.5 rounded-xl bg-[#db6b49] hover:bg-[#c65635] text-white text-[11px] font-extrabold flex items-center gap-1 shadow-xs shrink-0">
           <span>+ تذكرة جديدة</span>
@@ -1591,7 +1590,7 @@ function renderSubHeader() {
           <button type="button" onclick="state.viewingTicketsListInHub=false; state.navLevel=2; renderApp();" class="w-8 h-8 rounded-xl bg-[#faf7f5] hover:bg-[#f3ece6] border border-[#e5dfd9] text-[#111827] flex items-center justify-center shrink-0 active:scale-95 transition" title="رجوع">
             ${backIconSvg}
           </button>
-          <h2 class="font-extrabold text-xs sm:text-sm text-[#111827] truncate">التذاكر (${state.ticketFilterDept})</h2>
+          <h2 class="font-black text-lg text-[#111827] truncate">التذاكر (${state.ticketFilterDept})</h2>
         </div>
         <button type="button" onclick="openNewInspectionSheet()" class="px-3 py-1.5 rounded-xl bg-[#db6b49] hover:bg-[#c65635] text-white text-[11px] font-extrabold flex items-center gap-1 shadow-xs shrink-0">
           <span>+ تذكرة جديدة</span>
@@ -1603,7 +1602,7 @@ function renderSubHeader() {
           <button type="button" onclick="state.viewingTicketsListInHub=true; state.navLevel=3; renderApp();" class="w-8 h-8 rounded-xl bg-[#faf7f5] hover:bg-[#f3ece6] border border-[#e5dfd9] text-[#111827] flex items-center justify-center shrink-0 active:scale-95 transition" title="رجوع">
             ${backIconSvg}
           </button>
-          <h2 class="font-extrabold text-xs sm:text-sm text-[#111827] truncate">تفاصيل التذكرة</h2>
+          <h2 class="font-black text-lg text-[#111827] truncate">تفاصيل التذكرة</h2>
         </div>
       `;
     }
@@ -1676,7 +1675,7 @@ function renderSubHeader() {
         <button type="button" onclick="${backAction}" class="w-8 h-8 rounded-xl bg-[#faf7f5] hover:bg-[#f3ece6] border border-[#e5dfd9] text-[#111827] flex items-center justify-center shrink-0 active:scale-95 transition" title="رجوع">
           ${backIconSvg}
         </button>
-        <h2 class="font-extrabold text-xs sm:text-sm text-[#111827] truncate">${titleText}</h2>
+        <h2 class="font-black text-lg text-[#111827] truncate">${titleText}</h2>
       </div>
       <div class="flex items-center gap-1.5 shrink-0">
         ${rightActionHtml}
@@ -1702,7 +1701,7 @@ function renderSubHeader() {
         <button type="button" onclick="state.masterEditorCat=null; renderApp();" class="w-8 h-8 rounded-xl bg-[#faf7f5] hover:bg-[#f3ece6] border border-[#e5dfd9] text-[#111827] flex items-center justify-center shrink-0 active:scale-95 transition" title="رجوع">
           ${backIconSvg}
         </button>
-        <h2 class="font-extrabold text-xs sm:text-sm text-[#111827] truncate">${catTitles[state.masterEditorCat] || 'البيانات الأساسية'}</h2>
+        <h2 class="font-black text-lg text-[#111827] truncate">${catTitles[state.masterEditorCat] || 'البيانات الأساسية'}</h2>
       </div>
       ${state.masterEditorCat !== 'tanksConfig' ? `
         <button type="button" onclick="openMasterAddModal('${state.masterEditorCat}')" class="px-3 py-1.5 rounded-xl bg-[#db6b49] hover:bg-[#c65635] text-white text-[11px] font-extrabold flex items-center gap-1 shadow-xs shrink-0">

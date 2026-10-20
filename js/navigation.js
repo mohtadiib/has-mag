@@ -182,7 +182,7 @@ function renderSubHeader() {
           <button type="button" onclick="${backToOrigin}" class="w-8 h-8 rounded-xl bg-[#faf7f5] hover:bg-[#f3ece6] border border-[#e5dfd9] text-[#111827] flex items-center justify-center shrink-0 active:scale-95 transition" title="رجوع">
             ${backIconSvg}
           </button>
-          <h2 class="font-extrabold text-xs sm:text-sm text-[#111827] truncate">قسم الجولات والأقسام</h2>
+          <h2 class="font-black text-lg text-[#111827] truncate">قسم الجولات والأقسام</h2>
         </div>
         <button type="button" onclick="openNewInspectionSheet()" class="px-3 py-1.5 rounded-xl bg-[#db6b49] hover:bg-[#c65635] text-white text-[11px] font-extrabold flex items-center gap-1 shadow-xs shrink-0">
           <span>+ تذكرة جديدة</span>
@@ -194,7 +194,7 @@ function renderSubHeader() {
           <button type="button" onclick="state.viewingTicketsListInHub=false; state.navLevel=2; renderApp();" class="w-8 h-8 rounded-xl bg-[#faf7f5] hover:bg-[#f3ece6] border border-[#e5dfd9] text-[#111827] flex items-center justify-center shrink-0 active:scale-95 transition" title="رجوع">
             ${backIconSvg}
           </button>
-          <h2 class="font-extrabold text-xs sm:text-sm text-[#111827] truncate">التذاكر (${state.ticketFilterDept})</h2>
+          <h2 class="font-black text-lg text-[#111827] truncate">التذاكر (${state.ticketFilterDept})</h2>
         </div>
         <button type="button" onclick="openNewInspectionSheet()" class="px-3 py-1.5 rounded-xl bg-[#db6b49] hover:bg-[#c65635] text-white text-[11px] font-extrabold flex items-center gap-1 shadow-xs shrink-0">
           <span>+ تذكرة جديدة</span>
@@ -206,7 +206,7 @@ function renderSubHeader() {
           <button type="button" onclick="state.viewingTicketsListInHub=true; state.navLevel=3; renderApp();" class="w-8 h-8 rounded-xl bg-[#faf7f5] hover:bg-[#f3ece6] border border-[#e5dfd9] text-[#111827] flex items-center justify-center shrink-0 active:scale-95 transition" title="رجوع">
             ${backIconSvg}
           </button>
-          <h2 class="font-extrabold text-xs sm:text-sm text-[#111827] truncate">تفاصيل التذكرة</h2>
+          <h2 class="font-black text-lg text-[#111827] truncate">تفاصيل التذكرة</h2>
         </div>
       `;
     }
@@ -279,7 +279,7 @@ function renderSubHeader() {
         <button type="button" onclick="${backAction}" class="w-8 h-8 rounded-xl bg-[#faf7f5] hover:bg-[#f3ece6] border border-[#e5dfd9] text-[#111827] flex items-center justify-center shrink-0 active:scale-95 transition" title="رجوع">
           ${backIconSvg}
         </button>
-        <h2 class="font-extrabold text-xs sm:text-sm text-[#111827] truncate">${titleText}</h2>
+        <h2 class="font-black text-lg text-[#111827] truncate">${titleText}</h2>
       </div>
       <div class="flex items-center gap-1.5 shrink-0">
         ${rightActionHtml}
@@ -305,7 +305,7 @@ function renderSubHeader() {
         <button type="button" onclick="state.masterEditorCat=null; renderApp();" class="w-8 h-8 rounded-xl bg-[#faf7f5] hover:bg-[#f3ece6] border border-[#e5dfd9] text-[#111827] flex items-center justify-center shrink-0 active:scale-95 transition" title="رجوع">
           ${backIconSvg}
         </button>
-        <h2 class="font-extrabold text-xs sm:text-sm text-[#111827] truncate">${catTitles[state.masterEditorCat] || 'البيانات الأساسية'}</h2>
+        <h2 class="font-black text-lg text-[#111827] truncate">${catTitles[state.masterEditorCat] || 'البيانات الأساسية'}</h2>
       </div>
       ${state.masterEditorCat !== 'tanksConfig' ? `
         <button type="button" onclick="openMasterAddModal('${state.masterEditorCat}')" class="px-3 py-1.5 rounded-xl bg-[#db6b49] hover:bg-[#c65635] text-white text-[11px] font-extrabold flex items-center gap-1 shadow-xs shrink-0">
