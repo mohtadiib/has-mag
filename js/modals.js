@@ -1,5 +1,14 @@
-// BOTTOM SHEET CONTROLLER (النوافذ السفلية لشرح التفرعات والنماذج السريعة)
 // ============================================================================
+// HAS MAG IFMT - MODAL DIALOGS & BOTTOM SHEETS (النوافذ السفلية والحوارية التفاعلية)
+// Flutter Equivalent: lib/presentation/sheets/ & lib/presentation/dialogs/
+// (Equivalent to showModalBottomSheet() and showDialog() in Flutter)
+// ============================================================================
+
+/**
+ * Flutter Sheet Equivalent: lib/presentation/sheets/base_bottom_sheet.dart
+ * عرض نافذة سفلية عامة مع مسار التوجيه (Breadcrumbs)
+ * Flutter: showModalBottomSheet(context: context, isScrollControlled: true, builder: ...)
+ */
 function openBottomSheet(title, htmlContent, badgeIcon = '💡') {
   document.getElementById('sheetTitle').textContent = title;
   document.getElementById('sheetBadgeIcon').textContent = badgeIcon;
@@ -13,10 +22,18 @@ function openBottomSheet(title, htmlContent, badgeIcon = '💡') {
   document.getElementById('bottomSheetBackdrop').classList.remove('hidden');
 }
 
+/**
+ * Flutter Navigation Equivalent: Navigator.of(context).pop();
+ * إغلاق النافذة السفلية الحالية
+ */
 function closeBottomSheet() {
   document.getElementById('bottomSheetBackdrop').classList.add('hidden');
 }
 
+/**
+ * Flutter Sheet Equivalent: lib/presentation/sheets/help_bottom_sheet.dart
+ * نافذة شرح الوحدات التشغيلية وشجرة النظام
+ */
 function openHelpSheet(type, id, secondId) {
   if (event) event.stopPropagation();
 
@@ -99,10 +116,10 @@ function openHelpSheet(type, id, secondId) {
   }
 }
 
-// ============================================================================
-
-// CLEAN, OBJECTIVE ADD MODAL (حقول ضرورية وموضوعية فقط بدون تشعب)
-// ============================================================================
+/**
+ * Flutter Sheet Equivalent: lib/presentation/sheets/add_record_bottom_sheet.dart
+ * نافذة إضافة سجل تشغيلي جديد بنموذج ديناميكي
+ */
 function openAddModal(modId, subId) {
   const mod = SYSTEM_MODULES.find(m => m.id === (modId || state.selectedModuleId)) || getModule();
   const sub = (mod.subSections || []).find(s => s.id === (subId || state.selectedSubId)) || mod.subSections[0];
@@ -126,6 +143,10 @@ function openAddModal(modId, subId) {
       val = 'MRF-2026-0' + Math.floor(120 + Math.random() * 800);
     } else if (f.key === 'orderNo') {
       val = 'CP-2026-0' + Math.floor(90 + Math.random() * 800);
+    } else if (f.key === 'status') {
+      val = 'مفتوح';
+    } else if (f.key === 'closeDateTime') {
+      val = '';
     } else if (f.type === 'date') {
       val = '2026-10-19';
     } else if (f.type === 'time') {
@@ -136,118 +157,7 @@ function openAddModal(modId, subId) {
       val = '2026-10-19 16:00';
     }
 
-    if (f.type === 'master_entity') {
-      const entities = MASTER_DATA.entities || [];
-      const opts = entities.map(e => `<option value="${e}">${e}</option>`).join('');
-      return `
-        <div class="space-y-1">
-          <label class="font-bold text-[#1f2937] block">${f.label}</label>
-          <select name="${f.key}" class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-white font-semibold">${opts}</select>
-        </div>
-      `;
-    }
-
-    if (f.type === 'master_priority') {
-      const priorities = MASTER_DATA.priorities || [];
-      const opts = priorities.map(p => `<option value="${p}">${p}</option>`).join('');
-      return `
-        <div class="space-y-1">
-          <label class="font-bold text-[#1f2937] block">${f.label}</label>
-          <select name="${f.key}" class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-white font-semibold">${opts}</select>
-        </div>
-      `;
-    }
-
-    if (f.type === 'master_dept') {
-      const opts = MASTER_DATA.departments.map(d => `<option value="${d.name}" ${state.activeChildSubCode !== 'الكل' && d.name.includes(state.activeChildSubCode) ? 'selected' : ''}>${d.name}</option>`).join('');
-      return `
-        <div class="space-y-1">
-          <label class="font-bold text-[#1f2937] block">${f.label}</label>
-          <select name="${f.key}" class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-white font-semibold">${opts}</select>
-        </div>
-      `;
-    }
-
-    if (f.type === 'master_system') {
-      const opts = MASTER_DATA.systems.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
-      return `
-        <div class="space-y-1">
-          <label class="font-bold text-[#1f2937] block">${f.label}</label>
-          <select name="${f.key}" class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-white font-semibold">${opts}</select>
-        </div>
-      `;
-    }
-
-    if (f.type === 'master_location') {
-      const opts = MASTER_DATA.locations.map(l => `<option value="${l.name}">${l.name}</option>`).join('');
-      return `
-        <div class="space-y-1">
-          <label class="font-bold text-[#1f2937] block">${f.label}</label>
-          <select name="${f.key}" class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-white font-semibold">${opts}</select>
-        </div>
-      `;
-    }
-
-    if (f.type === 'master_employee') {
-      const opts = MASTER_DATA.employees.map(e => `<option value="${e.name}">${e.name} (${e.shift})</option>`).join('');
-      return `
-        <div class="space-y-1">
-          <label class="font-bold text-[#1f2937] block">${f.label}</label>
-          <select name="${f.key}" class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-white font-semibold">${opts}</select>
-        </div>
-      `;
-    }
-
-    if (f.type === 'master_catalog_item' || f.type === 'master_catalog_asset' || f.type === 'master_catalog_contractor') {
-      const filterType = f.type === 'master_catalog_item' ? 'صنف مخزني' : f.type === 'master_catalog_asset' ? 'أصل تشغيلي' : 'مقاول خارجي';
-      const items = MASTER_DATA.catalog.filter(c => c.type === filterType);
-      const opts = items.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
-      return `
-        <div class="space-y-1">
-          <label class="font-bold text-[#1f2937] block">${f.label}</label>
-          <select name="${f.key}" class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-white font-semibold">${opts}</select>
-        </div>
-      `;
-    }
-
-    if (f.type === 'select') {
-      const opts = (f.options || []).map(o => `<option value="${o}" ${val === o ? 'selected' : ''}>${o}</option>`).join('');
-      return `
-        <div class="space-y-1">
-          <label class="font-bold text-[#1f2937] block">${f.label}</label>
-          <select name="${f.key}" class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-white font-semibold">${opts}</select>
-        </div>
-      `;
-    }
-
-    if (f.type === 'textarea') {
-      return `
-        <div class="space-y-1">
-          <label class="font-bold text-[#1f2937] block">${f.label}</label>
-          <textarea name="${f.key}" rows="2" required class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-white font-semibold">${val}</textarea>
-        </div>
-      `;
-    }
-
-    if (f.type === 'readonly_calc') {
-      return `
-        <div class="space-y-1">
-          <label class="font-bold text-[#15803d] block">${f.label}</label>
-          <input type="number" name="${f.key}" id="modalCalcAvailableQty" value="${val || 0}" readonly class="w-full px-3 py-2 rounded-xl border border-[#bbf7d0] bg-[#f0fdf4] text-[#15803d] font-extrabold text-sm" />
-        </div>
-      `;
-    }
-
-    const liveCalcAttr = sub.isAutoStock && ['prevQty', 'incomingQty', 'issuedQty'].includes(f.key)
-      ? 'oninput="updateModalAutoStockCalc(this.form)"'
-      : '';
-
-    return `
-      <div class="space-y-1">
-        <label class="font-bold text-[#1f2937] block">${f.label}</label>
-        <input type="${f.type || 'text'}" name="${f.key}" value="${val}" ${liveCalcAttr} required class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-white font-semibold" />
-      </div>
-    `;
+    return renderDynamicFormField(f, val, { isQuickEdit: false, isAutoStock: sub.isAutoStock });
   }).join('');
 
   openBottomSheet(
@@ -269,46 +179,10 @@ function openAddModal(modId, subId) {
   );
 }
 
-function updateModalAutoStockCalc(form) {
-  if (!form) return;
-  const prev = parseFloat(form.querySelector('[name="prevQty"]')?.value || '0');
-  const inc = parseFloat(form.querySelector('[name="incomingQty"]')?.value || '0');
-  const iss = parseFloat(form.querySelector('[name="issuedQty"]')?.value || '0');
-  const out = document.getElementById('modalCalcAvailableQty');
-  if (out) out.value = prev + inc - iss;
-}
-
-function submitAddModalForm(e, modId, subId) {
-  e.preventDefault();
-  const form = e.target;
-  const mod = SYSTEM_MODULES.find(m => m.id === modId) || getModule();
-  const sub = (mod.subSections || []).find(s => s.id === subId) || getSubSection();
-  if (!sub) return;
-
-  const fd = new FormData(form);
-  const obj = { id: 'REC-' + Math.floor(100 + Math.random() * 900) };
-  for (const [k, v] of fd.entries()) {
-    obj[k] = v;
-  }
-
-  if (sub.isAutoStock) {
-    obj.prevQty = parseFloat(obj.prevQty || '0');
-    obj.incomingQty = parseFloat(obj.incomingQty || '0');
-    obj.issuedQty = parseFloat(obj.issuedQty || '0');
-    obj.availableQty = obj.prevQty + obj.incomingQty - obj.issuedQty;
-  }
-
-  if (!sub.records) sub.records = [];
-  sub.records.unshift(obj);
-  closeBottomSheet();
-  showToast(`تمت الإضافة في ${sub.shortTitle}`);
-  openSubSection(mod.id, sub.id, state.activeChildSubCode);
-}
-
-// ============================================================================
-
-// STREAMLINED BULK SHIFT ASSIGNMENT MODAL (نافذة موحدة ومباشرة لتحديد موظفي الوردية)
-// ============================================================================
+/**
+ * Flutter Sheet Equivalent: lib/presentation/sheets/bulk_shift_sheet.dart
+ * نافذة الإسناد الجماعي لموظفي الورديات
+ */
 function openBulkShiftModal(defaultShift = 'وردية A') {
   if (defaultShift && defaultShift !== 'الكل' && defaultShift !== 'عرض الكل') {
     uxState.bulkShift = defaultShift;
@@ -419,10 +293,10 @@ function confirmBulkShiftAssignment() {
   openSubSection('mod_hr', 'sub_attendance', uxState.bulkShift);
 }
 
-// ============================================================================
-
-// MASTER DATA ADD MODALS & WORKFLOW HELPERS
-// ============================================================================
+/**
+ * Flutter Sheet Equivalent: lib/presentation/sheets/master_add_sheet.dart
+ * نوافذ إضافة عناصر جديدة في الماستر داتا
+ */
 function openMasterAddModal(cat) {
   const deptOpts = MASTER_DATA.departments.map(d => `<option value="${d.name}">${d.name}</option>`).join('');
   if (cat === 'departments') {
@@ -444,7 +318,8 @@ function openMasterAddModal(cat) {
   } else if (cat === 'locations') {
     openBottomSheet('إضافة موقع / مرفق', `
       <form onsubmit="addMasterLocation(event); closeBottomSheet();" class="space-y-2.5 text-xs">
-        <input type="text" name="name" placeholder="اسم الموقع أو الصالة..." required class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-white font-bold" />
+        <input type="text" name="name" placeholder="اسم الموقع بالعربية (مثال: الصالة الملكية)..." required class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-white font-bold" />
+        <input type="text" name="code" placeholder="الرمز أو الاسم بالإنجليزية (اختياري، مثال: Royal Terminal)..." class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-white font-bold" />
         <button type="submit" class="w-full py-2.5 rounded-xl bg-[#db6b49] text-white font-extrabold">حفظ</button>
       </form>
     `, '📍');
@@ -452,13 +327,15 @@ function openMasterAddModal(cat) {
     openBottomSheet('إضافة موظف', `
       <form onsubmit="addMasterEmployee(event); closeBottomSheet();" class="space-y-2.5 text-xs">
         <input type="text" name="name" placeholder="اسم الموظف..." required class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-white font-bold" />
-        <div class="grid grid-cols-2 gap-2">
-          <input type="text" name="job" placeholder="المهنة" required class="px-3 py-2 rounded-xl border border-[#dfd8d0] bg-white font-bold" />
-          <select name="shift" class="px-3 py-2 rounded-xl border border-[#dfd8d0] bg-white font-bold">
-            <option value="وردية A">وردية A</option>
-            <option value="وردية B">وردية B</option>
-            <option value="وردية C">وردية C</option>
-          </select>
+        <input type="text" name="job" placeholder="المهنة (مثال: فني ميكانيكا)..." required class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-white font-bold" />
+        <div class="space-y-1">
+          <label class="font-bold text-[#1f2937] block">الوردية</label>
+          <div class="switch-button-group grid grid-cols-3 p-1 bg-[#ede7e2] rounded-2xl gap-1 border border-[#dfd8d0] shadow-inner select-none" data-name="shift">
+            <button type="button" data-switch-val="وردية A" data-active-class="bg-[#db6b49] text-white shadow-xs font-black" data-inactive-class="text-[#6b7280] hover:text-[#111827] font-bold" onclick="setFormSwitchValue(this, 'shift', 'وردية A')" class="switch-btn py-2 px-1 rounded-xl text-[11px] transition-all bg-[#db6b49] text-white shadow-xs font-black">وردية A</button>
+            <button type="button" data-switch-val="وردية B" data-active-class="bg-[#db6b49] text-white shadow-xs font-black" data-inactive-class="text-[#6b7280] hover:text-[#111827] font-bold" onclick="setFormSwitchValue(this, 'shift', 'وردية B')" class="switch-btn py-2 px-1 rounded-xl text-[11px] transition-all text-[#6b7280] hover:text-[#111827] font-bold">وردية B</button>
+            <button type="button" data-switch-val="وردية C" data-active-class="bg-[#db6b49] text-white shadow-xs font-black" data-inactive-class="text-[#6b7280] hover:text-[#111827] font-bold" onclick="setFormSwitchValue(this, 'shift', 'وردية C')" class="switch-btn py-2 px-1 rounded-xl text-[11px] transition-all text-[#6b7280] hover:text-[#111827] font-bold">وردية C</button>
+            <input type="hidden" name="shift" value="وردية A" />
+          </div>
         </div>
         <select name="department" class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-white font-bold">${deptOpts}</select>
         <button type="submit" class="w-full py-2.5 rounded-xl bg-[#db6b49] text-white font-extrabold">حفظ</button>
@@ -481,11 +358,15 @@ function openMasterAddModal(cat) {
   } else {
     openBottomSheet('إضافة صنف / أصل / مقاول', `
       <form onsubmit="addMasterCatalog(event); closeBottomSheet();" class="space-y-2.5 text-xs">
-        <select name="type" class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-white font-bold">
-          <option value="صنف مخزني">صنف مخزني</option>
-          <option value="أصل تشغيلي">أصل تشغيلي</option>
-          <option value="مقاول خارجي">مقاول خارجي</option>
-        </select>
+        <div class="space-y-1">
+          <label class="font-bold text-[#1f2937] block">نوع البند</label>
+          <div class="switch-button-group grid grid-cols-3 p-1 bg-[#ede7e2] rounded-2xl gap-1 border border-[#dfd8d0] shadow-inner select-none" data-name="type">
+            <button type="button" data-switch-val="صنف مخزني" data-active-class="bg-[#db6b49] text-white shadow-xs font-black" data-inactive-class="text-[#6b7280] hover:text-[#111827] font-bold" onclick="setFormSwitchValue(this, 'type', 'صنف مخزني')" class="switch-btn py-2 px-1 rounded-xl text-[11px] transition-all bg-[#db6b49] text-white shadow-xs font-black">صنف مخزني</button>
+            <button type="button" data-switch-val="أصل تشغيلي" data-active-class="bg-[#db6b49] text-white shadow-xs font-black" data-inactive-class="text-[#6b7280] hover:text-[#111827] font-bold" onclick="setFormSwitchValue(this, 'type', 'أصل تشغيلي')" class="switch-btn py-2 px-1 rounded-xl text-[11px] transition-all text-[#6b7280] hover:text-[#111827] font-bold">أصل تشغيلي</button>
+            <button type="button" data-switch-val="مقاول خارجي" data-active-class="bg-[#db6b49] text-white shadow-xs font-black" data-inactive-class="text-[#6b7280] hover:text-[#111827] font-bold" onclick="setFormSwitchValue(this, 'type', 'مقاول خارجي')" class="switch-btn py-2 px-1 rounded-xl text-[11px] transition-all text-[#6b7280] hover:text-[#111827] font-bold">مقاول خارجي</button>
+            <input type="hidden" name="type" value="صنف مخزني" />
+          </div>
+        </div>
         <input type="text" name="name" placeholder="الاسم..." required class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-white font-bold" />
         <button type="submit" class="w-full py-2.5 rounded-xl bg-[#db6b49] text-white font-extrabold">حفظ</button>
       </form>
@@ -493,112 +374,10 @@ function openMasterAddModal(cat) {
   }
 }
 
-function convertReportToWorkOrder(repId) {
-  const wcMod = SYSTEM_MODULES.find(m => m.id === 'mod_work_control');
-  const repSub = wcMod.subSections.find(s => s.id === 'sub_daily_reports');
-  const woSub = wcMod.subSections.find(s => s.id === 'sub_work_orders');
-  const rep = repSub.records.find(r => r.id === repId);
-  if (!rep) return;
-
-  const newWoNo = 'WO-2026-' + Math.floor(600 + Math.random() * 300);
-  woSub.records.unshift({
-    id: 'WO-' + Date.now(),
-    woNo: newWoNo,
-    priority: 'P2',
-    department: rep.department || MASTER_DATA.departments[0].name,
-    system: MASTER_DATA.systems[0].name,
-    technician: rep.technician || '',
-    status: 'مفتوح',
-    woDateTime: rep.reportDateTime || '2026-10-19 16:05',
-    responseTime: '10 دقائق',
-    correctionDuration: 'جاري العمل',
-    closeDateTime: '',
-    problemDesc: `محول من بلاغ (${rep.reporterName || 'بلاغ'} - ${rep.entity || ''}): ${rep.problemDesc}`,
-    materialsUsed: rep.materialsUsed || ''
-  });
-  showToast(`تم تحويل البلاغ إلى أمر عمل (${newWoNo})`);
-  openSubSection('mod_work_control', 'sub_work_orders');
-}
-
-function convertFaultToWorkOrder(faultId) {
-  const faultSub = SYSTEM_MODULES.find(m => m.id === 'mod_faulty').subSections[0];
-  const woSub = SYSTEM_MODULES.find(m => m.id === 'mod_work_control').subSections.find(s => s.id === 'sub_work_orders');
-  const rec = faultSub.records.find(r => r.id === faultId);
-  if (!rec) return;
-
-  const newWoNo = 'WO-2026-' + Math.floor(600 + Math.random() * 300);
-  woSub.records.unshift({
-    id: 'WO-' + Date.now(),
-    woNo: newWoNo,
-    priority: 'P2',
-    woDateTime: '2026-10-19 16:10',
-    department: rec.department,
-    system: rec.equipmentName,
-    technician: MASTER_DATA.employees[0]?.name || '',
-    status: 'مفتوح',
-    problemDesc: `إصلاح عطل (${rec.equipmentName}): ${rec.faultDesc}`,
-    materialsUsed: ''
-  });
-  showToast(`تم إصدار أمر عمل (${newWoNo})`);
-  openSubSection('mod_work_control', 'sub_work_orders');
-}
-
-function convertFaultToSpr(faultId) {
-  const faultSub = SYSTEM_MODULES.find(m => m.id === 'mod_faulty').subSections[0];
-  const sprSub = SYSTEM_MODULES.find(m => m.id === 'mod_warehouse').subSections.find(s => s.id === 'sub_spr');
-  const rec = faultSub.records.find(r => r.id === faultId);
-  if (!rec) return;
-
-  const newSprNo = 'SPR-2026-0' + Math.floor(200 + Math.random() * 700);
-  sprSub.records.unshift({
-    id: 'SPR-' + Date.now(),
-    sprNo: newSprNo,
-    createdDate: '2026-10-19',
-    department: rec.department,
-    system: rec.equipmentName,
-    partName: `قطعة غيار لـ ${rec.equipmentName}`,
-    reqQty: 1,
-    recQty: 0,
-    recDate: '',
-    attachmentNo: 'ATT-' + Math.floor(500 + Math.random() * 400)
-  });
-  showToast(`تم إنشاء طلب شراء (${newSprNo})`);
-  openSubSection('mod_warehouse', 'sub_spr');
-}
-
-function convertTicketToWorkOrder(tktId) {
-  const tkt = INSPECTION_TICKETS.find(t => t.id === tktId);
-  if (!tkt) return;
-  const woSub = SYSTEM_MODULES.find(m => m.id === 'mod_work_control').subSections.find(s => s.id === 'sub_work_orders');
-  const newWoNo = 'WO-2026-' + Math.floor(700 + Math.random() * 200);
-  woSub.records.unshift({
-    id: 'WO-' + Date.now(),
-    woNo: newWoNo,
-    priority: 'P2',
-    woDateTime: '2026-10-19 16:15',
-    department: tkt.department,
-    system: MASTER_DATA.systems[0].name,
-    technician: MASTER_DATA.employees[0]?.name || '',
-    status: 'مفتوح',
-    problemDesc: `محول من تذكرة جولة #${tkt.cmNumber}: ${tkt.title} (${tkt.location})`,
-    materialsUsed: ''
-  });
-  showToast(`تم تحويل التذكرة إلى أمر عمل (${newWoNo})`);
-  openSubSection('mod_work_control', 'sub_work_orders');
-}
-
-function deleteRecord(modId, subId, recId) {
-  const mod = SYSTEM_MODULES.find(m => m.id === modId);
-  const sub = mod?.subSections.find(s => s.id === subId);
-  if (!sub || !sub.records) return;
-  const idx = sub.records.findIndex(r => r.id === recId);
-  if (idx !== -1) {
-    sub.records.splice(idx, 1);
-    showToast('تم حذف السجل', '🗑️');
-    openSubSection(mod.id, sub.id, state.activeChildSubCode);
-  }
-}
-
+/**
+ * Flutter Dialog Equivalent: lib/presentation/sheets/rbac_sheet.dart
+ * نافذة أدوار وصلاحيات النظام
+ */
 function openRbacModal() {
   openBottomSheet('أدوار وصلاحيات النظام', `
     <div class="space-y-2.5 text-xs">
@@ -615,10 +394,10 @@ function openRbacModal() {
   `, '🔐');
 }
 
-// ============================================================================
-
-// BOTTOM SHEET ACTION FORMS (TANKS & INSPECTION TICKETS)
-// ============================================================================
+/**
+ * Flutter Sheet Equivalent: lib/presentation/sheets/tank_transaction_sheet.dart
+ * نافذة توريد أو صرف خزانات الوقود والمياه
+ */
 function openTankSheet(tankId, mode) {
   const tank = MASTER_DATA.tanksConfig.find(t => t.id === tankId);
   if (!tank) return;
@@ -644,24 +423,10 @@ function openTankSheet(tankId, mode) {
   );
 }
 
-function submitTankTx(e, tankId, mode) {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  const tank = MASTER_DATA.tanksConfig.find(t => t.id === tankId);
-  if (!tank) return;
-  const liters = parseFloat(fd.get('liters') || '0');
-  if (mode === 'supply') {
-    tank.currentLiters = Math.min(tank.capacity, tank.currentLiters + liters);
-    tank.lastSupplyDate = '2026-10-19';
-    showToast(`تم توريد ${liters.toLocaleString()} لتر`);
-  } else {
-    tank.currentLiters = Math.max(0, tank.currentLiters - liters);
-    showToast(`تم خصم ${liters.toLocaleString()} لتر`);
-  }
-  closeBottomSheet();
-  renderApp();
-}
-
+/**
+ * Flutter Sheet Equivalent: lib/presentation/sheets/new_inspection_sheet.dart
+ * نافذة فتح تذكرة جولة تفتيش ميدانية جديدة
+ */
 function openNewInspectionSheet() {
   const deptOpts = MASTER_DATA.departments.map(d => `<option value="${d.code}" ${state.ticketFilterDept === d.code ? 'selected' : ''}>${d.code} - ${d.name}</option>`).join('');
   const locOpts = MASTER_DATA.locations.map(l => `<option value="${l.name}">${l.name}</option>`).join('');
@@ -690,116 +455,17 @@ function openNewInspectionSheet() {
   `, '➕');
 }
 
-function submitNewInspection(e) {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  const deptCode = fd.get('department');
-  INSPECTION_TICKETS.unshift({
-    id: 'TKT-' + Math.floor(200 + Math.random() * 700),
-    title: fd.get('title'),
-    department: deptCode,
-    location: fd.get('location'),
-    status: 'مفتوحة',
-    timeAgo: 'الآن',
-    responseTime: '1 دقيقة',
-    totalDuration: '10 دقائق',
-    maintDuration: '9 دقائق',
-    reporter: 'Mazen (Inspector)',
-    cmNumber: fd.get('cmNumber'),
-    thumb: ICON_PATHS.photoBefore,
-    afterPhoto: ICON_PATHS.photoAfter,
-    closingNotes: 'تم فتح التذكرة وتوجيه القسم المختص.'
-  });
-  const depObj = MASTER_DATA.departments.find(d => d.code === deptCode);
-  if (depObj) depObj.badge = (depObj.badge || 0) + 1;
-  closeBottomSheet();
-  showToast('تمت إضافة التذكرة');
-  renderApp();
-}
-
-function toggleTicketStatus(tktId) {
-  const tkt = INSPECTION_TICKETS.find(r => r.id === tktId);
-  if (tkt) {
-    tkt.status = tkt.status === 'مغلقة' ? 'مفتوحة' : 'مغلقة';
-    showToast(`حالة التذكرة: ${tkt.status}`);
-    renderApp();
-  }
-}
-
-function addMasterDepartment(e) {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  MASTER_DATA.departments.push({
-    id: 'DEP-' + (MASTER_DATA.departments.length + 1),
-    code: fd.get('name').slice(0, 10),
-    name: fd.get('name'),
-    manager: fd.get('manager'),
-    badge: 0,
-    icon: ICON_PATHS.Building,
-    desc: 'قسم فني معتمد في النظام.'
-  });
-  showToast('تمت إضافة القسم');
-  renderApp();
-}
-
-function addMasterSystem(e) {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  MASTER_DATA.systems.unshift({ id: 'SYS-' + Date.now(), name: fd.get('name'), department: fd.get('department') });
-  showToast('تمت إضافة النظام');
-  renderApp();
-}
-
-function addMasterLocation(e) {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  MASTER_DATA.locations.unshift({ id: 'LOC-' + Date.now(), name: fd.get('name'), type: 'مرفق تشغيلي' });
-  showToast('تمت إضافة الموقع');
-  renderApp();
-}
-
-function addMasterEmployee(e) {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  MASTER_DATA.employees.unshift({ id: 'EMP-' + Date.now(), name: fd.get('name'), job: fd.get('job'), shift: fd.get('shift'), department: fd.get('department') });
-  showToast('تمت إضافة الموظف');
-  renderApp();
-}
-
-function addMasterCatalog(e) {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  MASTER_DATA.catalog.unshift({ id: 'CAT-' + Date.now(), type: fd.get('type'), name: fd.get('name') });
-  showToast('تمت الإضافة');
-  renderApp();
-}
-
-function toggleTankLock(idx) {
-  MASTER_DATA.tanksConfig[idx].locked = !MASTER_DATA.tanksConfig[idx].locked;
-  showToast(MASTER_DATA.tanksConfig[idx].locked ? 'تم قفل السعة 🔒' : 'تم فك القفل 🔓');
-  renderApp();
-}
-
-function addMasterEntity(e) {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  const name = (fd.get('name') || '').trim();
-  if (name && !MASTER_DATA.entities.includes(name)) {
-    MASTER_DATA.entities.push(name);
-    showToast('تمت إضافة الجهة المبلغة');
-    renderApp();
-  }
-}
-
-function addMasterPriority(e) {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  const name = (fd.get('name') || '').trim();
-  if (name && !MASTER_DATA.priorities.includes(name)) {
-    MASTER_DATA.priorities.push(name);
-    showToast('تمت إضافة الأولوية');
-    renderApp();
-  }
-}
-
-// ============================================================================
+// Global browser window exports
+window.openBottomSheet = openBottomSheet;
+window.closeBottomSheet = closeBottomSheet;
+window.openHelpSheet = openHelpSheet;
+window.openAddModal = openAddModal;
+window.openBulkShiftModal = openBulkShiftModal;
+window.renderBulkShiftModalContent = renderBulkShiftModalContent;
+window.toggleBulkEmpSelection = toggleBulkEmpSelection;
+window.bulkSelectEmps = bulkSelectEmps;
+window.confirmBulkShiftAssignment = confirmBulkShiftAssignment;
+window.openMasterAddModal = openMasterAddModal;
+window.openRbacModal = openRbacModal;
+window.openTankSheet = openTankSheet;
+window.openNewInspectionSheet = openNewInspectionSheet;

@@ -1,3 +1,8 @@
+// ============================================================================
+// HAS MAG IFMT - APPLICATION SCREENS & VIEWS (شاشات وصفحات التطبيق الرئيسية)
+// Flutter Equivalent: lib/presentation/screens/
+// ============================================================================
+
 // REUSABLE COMPONENT: TICKETS STATS + 12 DEPARTMENTS GRID (مبسطة ومباشرة)
 // ============================================================================
 function renderTicketsAndDepartmentsWidget() {
@@ -37,9 +42,9 @@ function renderTicketsAndDepartmentsWidget() {
         </div>
       </div>
 
-      <!-- 2. The 12 Technical Departments Grid -->
+      <!-- 2. The Technical Departments Grid -->
       <div class="space-y-2.5 pt-1">
-        <h2 class="text-sm font-extrabold text-[#111827]">الأقسام الفنية (12)</h2>
+        <h2 class="text-sm font-extrabold text-[#111827]">الأقسام الفنية (${MASTER_DATA.departments.length})</h2>
         <div class="grid grid-cols-4 gap-y-4 gap-x-2 text-center pt-1">
           ${MASTER_DATA.departments.map(dep => `
             <div onclick="openDeptTickets('${dep.code}')" class="cursor-pointer flex flex-col items-center justify-start group relative py-2 px-1 rounded-2xl hover:bg-[#ede7e2]/40 active:scale-95 transition duration-150 select-none">
@@ -148,19 +153,7 @@ function renderSubSectionRecords() {
               const cnt = c.isGroup
                 ? (sub.records || []).filter(r => (c.children || []).some(ch => ch.code === r[sub.childSubField])).length
                 : (sub.records || []).filter(r => r[sub.childSubField] === c.code).length;
-              return `
-                <div onclick="state.activeChildSubCode='${c.code}'; renderApp();" class="cursor-pointer flex flex-col items-center justify-start group relative py-2 px-1 rounded-xl hover:bg-[#ede7e2]/40 active:scale-95 transition duration-150 select-none">
-                  <div class="relative flex items-center justify-center transition-transform duration-200 group-hover:scale-110">
-                    <span class="absolute -top-1 -right-2 px-1.5 py-0.5 rounded-full bg-[#47525e] text-white text-[9px] font-extrabold shadow-xs leading-none border border-white z-10">${cnt}</span>
-                    ${(!c.icon || (!c.icon.startsWith('data:') && !c.icon.startsWith('http') && !c.icon.includes('/'))) ? `
-                      <span class="text-3xl leading-none select-none filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.07)]" role="img" aria-label="${c.title}">${c.textIcon || c.icon || '📄'}</span>
-                    ` : `
-                      <img src="${c.icon}" alt="${c.title}" class="w-10 h-10 object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.08)]" />
-                    `}
-                  </div>
-                  <span class="text-[11px] font-bold text-[#111827] group-hover:text-[#db6b49] mt-2 leading-tight text-center transition tracking-tight">${c.title}</span>
-                </div>
-              `;
+              return renderChildSubIconCard(c, cnt, c.code);
             }).join('')}
           </div>
         </div>
@@ -185,19 +178,7 @@ function renderSubSectionRecords() {
           <div class="grid grid-cols-3 gap-y-3 gap-x-2 text-center pt-1">
             ${activeGroup.children.map(c => {
               const cnt = (sub.records || []).filter(r => r[sub.childSubField] === c.code).length;
-              return `
-                <div onclick="state.activeChildSubCode='${c.code}'; renderApp();" class="cursor-pointer flex flex-col items-center justify-start group relative py-2 px-1 rounded-xl hover:bg-[#ede7e2]/40 active:scale-95 transition duration-150 select-none">
-                  <div class="relative flex items-center justify-center transition-transform duration-200 group-hover:scale-110">
-                    <span class="absolute -top-1 -right-2 px-1.5 py-0.5 rounded-full bg-[#47525e] text-white text-[9px] font-extrabold shadow-xs leading-none border border-white z-10">${cnt}</span>
-                    ${(!c.icon || (!c.icon.startsWith('data:') && !c.icon.startsWith('http') && !c.icon.includes('/'))) ? `
-                      <span class="text-3xl leading-none select-none filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.07)]" role="img" aria-label="${c.title}">${c.textIcon || c.icon || '📄'}</span>
-                    ` : `
-                      <img src="${c.icon}" alt="${c.title}" class="w-10 h-10 object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.08)]" />
-                    `}
-                  </div>
-                  <span class="text-[11px] font-bold text-[#111827] group-hover:text-[#db6b49] mt-2 leading-tight text-center transition tracking-tight">${c.title}</span>
-                </div>
-              `;
+              return renderChildSubIconCard(c, cnt, c.code);
             }).join('')}
           </div>
         </div>
@@ -357,7 +338,7 @@ function renderSubSectionRecords() {
         <div class="space-y-2.5">
           ${filteredRecords.length === 0 ? `
             <div class="bg-white rounded-2xl border border-[#ede7e2] p-6 text-center text-xs text-[#6b7280]">
-              لا توجد سجلات حالياً في هذا التصنيف. استخدم زر (+ إضافة) في الأعلى.
+              لا توجد سجلات حالياً في هذا التصنيف. اضغط على زر (+) العائم أدناه لإضافة سجل جديد.
             </div>
           ` : filteredRecords.map(rec => {
             // Case 1: البلاغات اليومية (Daily Reports) - بطاقة مختصرة وأنيقة
@@ -369,9 +350,7 @@ function renderSubSectionRecords() {
                       <span class="truncate">${rec.entity || 'الجهة غير محددة'}</span>
                       ${rec.reporterName ? `<span class="text-[10px] font-normal text-[#6b7280] shrink-0">(${rec.reporterName})</span>` : ''}
                     </div>
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${rec.status === 'مغلق' ? 'bg-[#f0fdf4] text-[#15803d]' : 'bg-[#fff7ed] text-[#c2410c]'}">
-                      ${rec.status || 'مفتوح'}
-                    </span>
+                    ${renderStatusBadge(rec.status)}
                   </div>
 
                   <p class="text-xs text-[#4b5563] truncate leading-normal">
@@ -391,22 +370,14 @@ function renderSubSectionRecords() {
 
             // Case 2: أوامر العمل (Work Orders & RM) - بطاقة مختصرة وأنيقة
             if (sub.id === 'sub_work_orders' || sub.id === 'sub_rm_work_orders') {
-              const pClass = !rec.priority ? 'bg-slate-500 text-white' :
-                (rec.priority === 'P1' || rec.priority.startsWith('R1') || rec.priority.includes('حرجة') || rec.priority.includes('فورية')) ? 'bg-red-600 text-white' :
-                (rec.priority === 'P2' || rec.priority.startsWith('R2') || rec.priority.includes('طارئة')) ? 'bg-red-500 text-white' :
-                (rec.priority.startsWith('P3') || rec.priority.startsWith('R3') || rec.priority.includes('عالية')) ? 'bg-[#ea580c] text-white' :
-                (rec.priority === 'R4' || rec.priority.includes('متوسطة')) ? 'bg-amber-500 text-white' : 'bg-slate-500 text-white';
-
               return `
                 <div onclick="openRecordDetails('${rec.id}', false)" class="cursor-pointer bg-white hover:border-[#db6b49] rounded-2xl border border-[#ede7e2] p-3 shadow-2xs transition space-y-1.5">
                   <div class="flex items-center justify-between gap-2">
                     <div class="flex items-center gap-1.5 min-w-0">
                       <span class="text-xs font-black text-[#111827]">${rec.woNo || rec.id}</span>
-                      ${rec.priority ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold ${pClass}">${rec.priority}</span>` : ''}
+                      ${renderPriorityBadge(rec.priority)}
                     </div>
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${rec.status === 'مغلق' ? 'bg-[#f0fdf4] text-[#15803d]' : 'bg-[#fff7ed] text-[#c2410c]'}">
-                      ${rec.status || 'مفتوح'}
-                    </span>
+                    ${renderStatusBadge(rec.status)}
                   </div>
 
                   <p class="text-xs text-[#4b5563] truncate leading-normal">
@@ -458,11 +429,7 @@ function renderSubSectionRecords() {
                     <span class="font-extrabold text-xs text-[#111827] truncate">
                       ${primaryKey && rec[primaryKey.key] !== undefined && rec[primaryKey.key] !== '' ? rec[primaryKey.key] : rec.id}
                     </span>
-                    ${statusVal ? `
-                      <span class="px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${statusVal === 'مغلق' || statusVal === 'مكتمل' || statusVal === 'منتظم' || statusVal === 'يعمل' ? 'bg-[#f0fdf4] text-[#15803d]' : 'bg-[#fff7ed] text-[#c2410c]'}">
-                        ${statusVal}
-                      </span>
-                    ` : ''}
+                    ${statusVal ? renderStatusBadge(statusVal) : ''}
                   </div>
                   ${secondaryKey && rec[secondaryKey.key] !== undefined && rec[secondaryKey.key] !== '' ? `
                     <div class="text-[11px] text-[#6b7280] truncate">
@@ -647,58 +614,8 @@ function renderRecordDetailsView() {
         </div>
 
         ${(sub.fields || []).map(f => {
-          let val = existing[f.key] !== undefined ? existing[f.key] : '';
-          let inputHtml = '';
-
-          if (f.type === 'master_entity') {
-            const entities = MASTER_DATA.entities || [];
-            const opts = entities.map(e => `<option value="${e}" ${val === e ? 'selected' : ''}>${e}</option>`).join('');
-            inputHtml = `<select name="${f.key}" class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-[#faf7f5] font-semibold">${opts}</select>`;
-          } else if (f.type === 'master_priority') {
-            const priorities = MASTER_DATA.priorities || [];
-            const opts = priorities.map(p => `<option value="${p}" ${val === p ? 'selected' : ''}>${p}</option>`).join('');
-            inputHtml = `<select name="${f.key}" class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-[#faf7f5] font-semibold">${opts}</select>`;
-          } else if (f.type === 'master_dept') {
-            const opts = MASTER_DATA.departments.map(d => `<option value="${d.name}" ${val === d.name ? 'selected' : ''}>${d.name}</option>`).join('');
-            inputHtml = `<select name="${f.key}" class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-[#faf7f5] font-semibold">${opts}</select>`;
-          } else if (f.type === 'master_system') {
-            const opts = MASTER_DATA.systems.map(s => `<option value="${s.name}" ${val === s.name ? 'selected' : ''}>${s.name}</option>`).join('');
-            inputHtml = `<select name="${f.key}" class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-[#faf7f5] font-semibold">${opts}</select>`;
-          } else if (f.type === 'master_location') {
-            const opts = MASTER_DATA.locations.map(l => `<option value="${l.name}" ${val === l.name ? 'selected' : ''}>${l.name}</option>`).join('');
-            inputHtml = `<select name="${f.key}" class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-[#faf7f5] font-semibold">${opts}</select>`;
-          } else if (f.type === 'master_employee') {
-            const opts = MASTER_DATA.employees.map(e => `<option value="${e.name}" ${val === e.name ? 'selected' : ''}>${e.name} (${e.shift})</option>`).join('');
-            inputHtml = `<select name="${f.key}" class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-[#faf7f5] font-semibold">${opts}</select>`;
-          } else if (f.type === 'master_catalog_item') {
-            const items = MASTER_DATA.catalog.filter(c => c.type === 'صنف مخزني');
-            const opts = items.map(c => `<option value="${c.name}" ${val === c.name ? 'selected' : ''}>${c.name}</option>`).join('');
-            inputHtml = `<select name="${f.key}" class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-[#faf7f5] font-semibold">${opts}</select>`;
-          } else if (f.type === 'master_catalog_asset') {
-            const assets = MASTER_DATA.catalog.filter(c => c.type === 'أصل تشغيلي');
-            const opts = assets.map(c => `<option value="${c.name}" ${val === c.name ? 'selected' : ''}>${c.name}</option>`).join('');
-            inputHtml = `<select name="${f.key}" class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-[#faf7f5] font-semibold">${opts}</select>`;
-          } else if (f.type === 'master_catalog_contractor') {
-            const contractors = MASTER_DATA.catalog.filter(c => c.type === 'مقاول خارجي');
-            const opts = contractors.map(c => `<option value="${c.name}" ${val === c.name ? 'selected' : ''}>${c.name}</option>`).join('');
-            inputHtml = `<select name="${f.key}" class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-[#faf7f5] font-semibold">${opts}</select>`;
-          } else if (f.type === 'select') {
-            const opts = (f.options || []).map(o => `<option value="${o}" ${val === o ? 'selected' : ''}>${o}</option>`).join('');
-            inputHtml = `<select name="${f.key}" class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-[#faf7f5] font-semibold">${opts}</select>`;
-          } else if (f.type === 'textarea') {
-            inputHtml = `<textarea name="${f.key}" rows="2" class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-[#faf7f5] font-semibold">${val}</textarea>`;
-          } else if (f.type === 'readonly_calc') {
-            inputHtml = `<input type="number" name="${f.key}" id="calcField_${f.key}" value="${val || 0}" readonly class="w-full px-3 py-2 rounded-xl border border-[#bbf7d0] bg-[#f0fdf4] text-[#15803d] font-extrabold text-sm" />`;
-          } else {
-            inputHtml = `<input type="${f.type || 'text'}" name="${f.key}" value="${val}" class="w-full px-3 py-2 rounded-xl border border-[#dfd8d0] bg-[#faf7f5] font-semibold" />`;
-          }
-
-          return `
-            <div class="space-y-1">
-              <label class="font-bold text-[#1f2937] block">${f.label}</label>
-              ${inputHtml}
-            </div>
-          `;
+          const val = existing[f.key] !== undefined ? existing[f.key] : '';
+          return renderDynamicFormField(f, val, { isQuickEdit: true });
         }).join('')}
 
         <div class="pt-2 flex items-center gap-2">
@@ -825,75 +742,15 @@ function renderMoreSettingsTab() {
 
 // ============================================================================
 
-// MASTER DATA EDITOR SUB-VIEW
+// MASTER DATA EDITOR SUB-VIEW (نمط تعريفي موحد ونظيف لكافة القوائم)
 // ============================================================================
 function renderMasterDataEditor(cat) {
-  if (cat === 'departments') {
-    return `
-      <div class="p-3.5 space-y-2 fade-in text-xs">
-        ${MASTER_DATA.departments.map((d, idx) => `
-          <div class="bg-white rounded-2xl p-3 border border-[#ede7e2] flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-              <img src="${d.icon}" class="w-7 h-7 object-contain" />
-              <div>
-                <div class="font-bold text-[#111827]">${d.name}</div>
-                <div class="text-[10px] text-[#6b7280]">المسؤول: ${d.manager}</div>
-              </div>
-            </div>
-            <button type="button" onclick="MASTER_DATA.departments.splice(${idx},1); renderApp();" class="text-red-600 font-bold text-[11px]">حذف</button>
-          </div>
-        `).join('')}
-      </div>
-    `;
-  }
-
-  if (cat === 'systems') {
-    return `
-      <div class="p-3.5 space-y-2 fade-in text-xs">
-        ${MASTER_DATA.systems.map((s, idx) => `
-          <div class="bg-white rounded-2xl p-3 border border-[#ede7e2] flex items-center justify-between">
-            <div>
-              <div class="font-bold text-[#111827]">${s.name}</div>
-              <div class="text-[10px] text-[#db6b49]">${s.department}</div>
-            </div>
-            <button type="button" onclick="MASTER_DATA.systems.splice(${idx},1); renderApp();" class="text-red-600 font-bold text-[11px]">حذف</button>
-          </div>
-        `).join('')}
-      </div>
-    `;
-  }
-
-  if (cat === 'locations') {
-    return `
-      <div class="p-3.5 space-y-2 fade-in text-xs">
-        ${MASTER_DATA.locations.map((l, idx) => `
-          <div class="bg-white rounded-2xl p-3 border border-[#ede7e2] flex items-center justify-between">
-            <div>
-              <span class="font-bold text-[#111827] block">${l.name}</span>
-              <span class="text-[10px] text-[#6b7280]">${l.type || 'مرفق تشغيلي'}</span>
-            </div>
-            <button type="button" onclick="MASTER_DATA.locations.splice(${idx},1); renderApp();" class="text-red-600 font-bold text-[11px]">حذف</button>
-          </div>
-        `).join('')}
-      </div>
-    `;
-  }
-
-  if (cat === 'employees') {
-    return `
-      <div class="p-3.5 space-y-2 fade-in text-xs">
-        ${MASTER_DATA.employees.map((e, idx) => `
-          <div class="bg-white rounded-2xl p-3 border border-[#ede7e2] flex items-center justify-between">
-            <div>
-              <div class="font-bold text-[#111827]">${e.name} <span class="px-2 py-0.5 rounded-md bg-[#fdece6] text-[#db6b49] text-[10px]">${e.shift}</span></div>
-              <div class="text-[10px] text-[#6b7280] mt-0.5">${e.job} • ${e.department}</div>
-            </div>
-            <button type="button" onclick="MASTER_DATA.employees.splice(${idx},1); renderApp();" class="text-red-600 font-bold text-[11px]">حذف</button>
-          </div>
-        `).join('')}
-      </div>
-    `;
-  }
+  const q = (state.masterSearchQuery || '').toLowerCase().trim();
+  const searchBar = `
+    <div class="mb-2">
+      <input type="text" value="${state.masterSearchQuery || ''}" oninput="state.masterSearchQuery=this.value; renderApp();" placeholder="بحث سريع في العناصر..." class="w-full px-3.5 py-2 rounded-xl bg-white border border-[#ede7e2] text-xs font-semibold focus:outline-none focus:border-[#db6b49]" />
+    </div>
+  `;
 
   if (cat === 'tanksConfig') {
     return `
@@ -922,53 +779,106 @@ function renderMasterDataEditor(cat) {
     `;
   }
 
-  if (cat === 'entities') {
-    return `
-      <div class="p-3.5 space-y-2 fade-in text-xs">
-        ${MASTER_DATA.entities.map((e, idx) => `
-          <div class="bg-white rounded-2xl p-3 border border-[#ede7e2] flex items-center justify-between">
-            <div class="font-bold text-[#111827] flex items-center gap-2">
-              <span class="w-6 h-6 rounded-lg bg-[#fdece6] text-[#db6b49] flex items-center justify-center font-bold text-xs">${idx + 1}</span>
-              <span>${e}</span>
-            </div>
-            <button type="button" onclick="MASTER_DATA.entities.splice(${idx},1); renderApp();" class="text-red-600 font-bold text-[11px]">حذف</button>
+  const configs = {
+    departments: {
+      label: 'الأقسام',
+      total: MASTER_DATA.departments.length,
+      list: MASTER_DATA.departments.filter(d => !q || d.name.toLowerCase().includes(q) || d.code.toLowerCase().includes(q) || d.manager.toLowerCase().includes(q)),
+      render: d => `
+        <div class="flex items-center gap-2.5">
+          <img src="${d.icon}" class="w-7 h-7 object-contain" />
+          <div>
+            <div class="font-bold text-[#111827]">${d.name}</div>
+            <div class="text-[10px] text-[#6b7280]">المسؤول / المشرف: ${d.manager}</div>
           </div>
-        `).join('')}
-      </div>
-    `;
-  }
+        </div>
+      `,
+      delId: d => d.id
+    },
+    systems: {
+      label: 'الأنظمة',
+      total: MASTER_DATA.systems.length,
+      list: MASTER_DATA.systems.filter(s => !q || s.name.toLowerCase().includes(q) || s.department.toLowerCase().includes(q)),
+      render: s => `
+        <div>
+          <div class="font-bold text-[#111827]">${s.name}</div>
+          <div class="text-[10px] text-[#db6b49] font-semibold">${s.department}</div>
+        </div>
+      `,
+      delId: s => s.id
+    },
+    locations: {
+      label: 'المواقع',
+      total: MASTER_DATA.locations.length,
+      list: MASTER_DATA.locations.filter(l => !q || l.name.toLowerCase().includes(q) || (l.code && l.code.toLowerCase().includes(q))),
+      render: l => `
+        <div>
+          <span class="font-bold text-[#111827] block">${l.name}</span>
+          <span class="text-[10px] text-[#6b7280]">${l.type || 'مرفق تشغيلي'}${l.code ? ' • ' + l.code : ''}</span>
+        </div>
+      `,
+      delId: l => l.id
+    },
+    employees: {
+      label: 'الموظفين',
+      total: MASTER_DATA.employees.length,
+      list: MASTER_DATA.employees.filter(e => !q || e.name.toLowerCase().includes(q) || e.job.toLowerCase().includes(q) || e.department.toLowerCase().includes(q)),
+      render: e => `
+        <div>
+          <div class="font-bold text-[#111827]">${e.name} <span class="px-2 py-0.5 rounded-md bg-[#fdece6] text-[#db6b49] text-[10px] font-bold">${e.shift}</span></div>
+          <div class="text-[10px] text-[#6b7280] mt-0.5">${e.job} • ${e.department}</div>
+        </div>
+      `,
+      delId: e => e.id
+    },
+    entities: {
+      label: 'الجهات',
+      total: MASTER_DATA.entities.length,
+      list: MASTER_DATA.entities.map((e, idx) => ({ e, originalIdx: idx })).filter(item => !q || item.e.toLowerCase().includes(q)),
+      render: item => `
+        <div class="font-bold text-[#111827] flex items-center gap-2">
+          <span class="w-6 h-6 rounded-lg bg-[#fdece6] text-[#db6b49] flex items-center justify-center font-bold text-xs">${item.originalIdx + 1}</span>
+          <span>${item.e}</span>
+        </div>
+      `,
+      delId: item => item.originalIdx
+    },
+    priorities: {
+      label: 'الأولويات',
+      total: MASTER_DATA.priorities.length,
+      list: MASTER_DATA.priorities.map((p, idx) => ({ p, originalIdx: idx })).filter(item => !q || item.p.toLowerCase().includes(q)),
+      render: item => `
+        <div class="font-bold text-[#111827] flex items-center gap-2">
+          ${renderPriorityBadge(item.p)}
+          <span class="text-xs text-[#4b5563]">أولوية معتمدة SLA</span>
+        </div>
+      `,
+      delId: item => item.originalIdx
+    },
+    catalog: {
+      label: 'الأصناف',
+      total: MASTER_DATA.catalog.length,
+      list: MASTER_DATA.catalog.filter(c => !q || c.name.toLowerCase().includes(q) || c.type.toLowerCase().includes(q)),
+      render: c => `
+        <div>
+          <span class="text-[10px] text-[#db6b49] font-bold">${c.type}</span>
+          <div class="font-bold text-[#111827]">${c.name}</div>
+        </div>
+      `,
+      delId: c => c.id
+    }
+  };
 
-  if (cat === 'priorities') {
-    return `
-      <div class="p-3.5 space-y-2 fade-in text-xs">
-        ${MASTER_DATA.priorities.map((p, idx) => {
-          const pClass = (p === 'P1' || p.startsWith('R1')) ? 'bg-red-600 text-white' :
-            (p === 'P2' || p.startsWith('R2')) ? 'bg-red-500 text-white' :
-            (p.startsWith('P3') || p.startsWith('R3')) ? 'bg-[#ea580c] text-white' :
-            (p === 'R4') ? 'bg-amber-500 text-white' : 'bg-slate-500 text-white';
-          return `
-            <div class="bg-white rounded-2xl p-3 border border-[#ede7e2] flex items-center justify-between">
-              <div class="font-bold text-[#111827] flex items-center gap-2">
-                <span class="px-2 py-0.5 rounded text-[10px] font-black ${pClass}">${p}</span>
-                <span class="text-xs text-[#4b5563]">أولوية معتمدة SLA</span>
-              </div>
-              <button type="button" onclick="MASTER_DATA.priorities.splice(${idx},1); renderApp();" class="text-red-600 font-bold text-[11px]">حذف</button>
-            </div>
-          `;
-        }).join('')}
-      </div>
-    `;
-  }
+  const cfg = configs[cat] || configs.departments;
 
   return `
     <div class="p-3.5 space-y-2 fade-in text-xs">
-      ${MASTER_DATA.catalog.map((c, idx) => `
+      ${searchBar}
+      <div class="text-[11px] text-[#6b7280] font-bold px-1">عدد ${cfg.label}: ${cfg.list.length} من ${cfg.total}</div>
+      ${cfg.list.map(item => `
         <div class="bg-white rounded-2xl p-3 border border-[#ede7e2] flex items-center justify-between">
-          <div>
-            <span class="text-[10px] text-[#db6b49] font-bold">${c.type}</span>
-            <div class="font-bold text-[#111827]">${c.name}</div>
-          </div>
-          <button type="button" onclick="MASTER_DATA.catalog.splice(${idx},1); renderApp();" class="text-red-600 font-bold text-[11px]">حذف</button>
+          ${cfg.render(item)}
+          <button type="button" onclick="deleteMasterItem('${cat}', '${cfg.delId(item)}')" class="text-red-600 font-bold text-[11px]">حذف</button>
         </div>
       `).join('')}
     </div>

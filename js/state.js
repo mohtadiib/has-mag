@@ -15,7 +15,8 @@ const state = {
   ticketSearchQuery: '',
   viewingTicketsListInHub: false, // Inside Inspection Hub: false = show Ticket Stats + 12 Depts Grid; true = show filtered Tickets List
   toursOriginModuleId: null,      // Tracks if Tours Hub was opened from inside Work Control
-  masterEditorCat: null
+  masterEditorCat: null,
+  masterSearchQuery: ''
 };
 
 function getModule() {

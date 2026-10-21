@@ -32,6 +32,9 @@ function renderApp() {
   }
 
   bindDetailFormEvents();
+  if (typeof updateFabVisibility === 'function') {
+    updateFabVisibility();
+  }
   document.getElementById('mainScrollArea').scrollTop = 0;
 }
 

@@ -111,6 +111,7 @@ function openRecordDetails(recId, isNew = false) {
 function openMasterCategory(catId) {
   state.activeTab = 'more';
   state.masterEditorCat = catId;
+  state.masterSearchQuery = '';
   renderApp();
 }
 
@@ -252,27 +253,10 @@ function renderSubHeader() {
       }
     }
 
-    // Single Action Button in Header when on Level 3 (No duplicate buttons!)
-    let rightActionHtml = `
-      <button type="button" onclick="openHelpSheet('${state.navLevel === 2 ? 'module' : 'subSection'}', '${mod.id}', '${sub?.id || ''}')" class="w-7 h-7 rounded-full bg-[#fdece6] text-[#db6b49] text-xs font-extrabold flex items-center justify-center shrink-0">؟</button>
+    // Help button in Header (Add button is moved to the circular FAB on all pages)
+    const rightActionHtml = `
+      <button type="button" onclick="openHelpSheet('${state.navLevel === 2 ? 'module' : 'subSection'}', '${mod.id}', '${sub?.id || ''}')" class="w-7 h-7 rounded-full bg-[#fdece6] text-[#db6b49] text-xs font-extrabold flex items-center justify-center shrink-0" title="دليل الوحدة">؟</button>
     `;
-
-    if (state.navLevel === 3 && sub && !sub.isInteractiveTanks) {
-      if (sub.id === 'sub_attendance') {
-        const targetShift = (state.activeChildSubCode !== 'الكل' && state.activeChildSubCode !== 'عرض الكل') ? state.activeChildSubCode : 'وردية A';
-        rightActionHtml = `
-          <button type="button" onclick="openBulkShiftModal('${targetShift}')" class="px-3 py-1.5 rounded-xl bg-[#db6b49] hover:bg-[#c65635] text-white text-[11px] font-extrabold flex items-center gap-1 shadow-xs shrink-0">
-            <span>+ تحديد موظفي الوردية</span>
-          </button>
-        `;
-      } else {
-        rightActionHtml = `
-          <button type="button" onclick="openAddModal('${mod.id}', '${sub.id}')" class="px-3 py-1.5 rounded-xl bg-[#db6b49] hover:bg-[#c65635] text-white text-[11px] font-extrabold flex items-center gap-1 shadow-xs shrink-0">
-            <span>+ إضافة</span>
-          </button>
-        `;
-      }
-    }
 
     bar.innerHTML = `
       <div class="flex items-center gap-2 min-w-0 flex-1">
@@ -307,11 +291,6 @@ function renderSubHeader() {
         </button>
         <h2 class="font-black text-lg text-[#111827] truncate">${catTitles[state.masterEditorCat] || 'البيانات الأساسية'}</h2>
       </div>
-      ${state.masterEditorCat !== 'tanksConfig' ? `
-        <button type="button" onclick="openMasterAddModal('${state.masterEditorCat}')" class="px-3 py-1.5 rounded-xl bg-[#db6b49] hover:bg-[#c65635] text-white text-[11px] font-extrabold flex items-center gap-1 shadow-xs shrink-0">
-          <span>+ إضافة</span>
-        </button>
-      ` : ''}
     `;
     return;
   }

@@ -8,13 +8,12 @@
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link rel="stylesheet" href="css/style.css">
 </head>
-</head>
 
-<body class="min-h-screen flex items-center justify-center sm:py-3 sm:px-2">
+<body class="h-full w-full overflow-hidden flex items-center justify-center sm:p-2 select-none">
 
   <!-- Mobile App Container -->
   <div
-    class="mobile-shell w-full max-w-[412px] h-screen sm:h-[860px] bg-[#faf7f5] sm:rounded-[32px] sm:border-[6px] sm:border-[#1e252b] shadow-2xl flex flex-col overflow-hidden relative">
+    class="mobile-shell w-full max-w-[412px] h-[100dvh] sm:h-[min(860px,calc(100vh-20px))] bg-[#faf7f5] sm:rounded-[32px] sm:border-[6px] sm:border-[#1e252b] shadow-2xl flex flex-col overflow-hidden relative">
 
     <!-- 1. Top Dark Slate System Status Bar -->
     <div
@@ -31,8 +30,8 @@
       class="bg-[#faf7f5] px-3.5 py-2.5 border-b border-[#ece6e1] flex items-center justify-between shrink-0">
       <div class="flex items-center">
         <img
-          src="data:image/png;base64,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"
-          alt="MAG المجال العربي" class="h-9 w-auto object-contain" />
+          src="majal.png"
+          alt="مجموعة المجال العربي | MMG" class="h-9 w-auto object-contain" />
       </div>
 
       <div
@@ -113,7 +112,14 @@
       </button>
     </nav>
 
-
+    <!-- 6-B. Global Floating Action Button (زر الإضافة العائم الدائري FAB في كل الصفحات) -->
+    <button type="button" id="globalFabBtn" onclick="handleGlobalFabClick()"
+      class="fab-btn absolute bottom-[72px] left-4 z-30 w-14 h-14 rounded-full bg-[#db6b49] hover:bg-[#c55a3a] active:scale-95 text-white shadow-xl shadow-[#db6b49]/40 flex items-center justify-center transition-all duration-200 group"
+      title="إضافة جديد" aria-label="إضافة جديد">
+      <svg class="w-7 h-7 transition-transform group-hover:rotate-90 duration-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+      </svg>
+    </button>
 
     <!-- 7. Interactive Bottom Sheet (نافذة منبثقة للإضافة والتفرعات والنماذج الذكية) -->
     <div id="bottomSheetBackdrop"
@@ -150,13 +156,46 @@
   </div>
 
 
-  <!-- Modular JavaScript Architecture -->
+  <!-- Modular JavaScript Architecture (Mirrors Flutter Clean Architecture) -->
+  <!-- 1. Core & Assets (Flutter: lib/core/) -->
   <script src="js/icons.js"></script>
   <script src="js/data.js"></script>
   <script src="js/state.js"></script>
   <script src="js/navigation.js"></script>
-  <script src="js/modals.js"></script>
-  <script src="js/views.js"></script>
+
+  <!-- 2. UI Widgets & Components (Flutter: lib/presentation/widgets/) -->
+  <script src="js/components/badges.js"></script>
+  <script src="js/components/cards.js"></script>
+  <script src="js/components/switch.js"></script>
+  <script src="js/components/form_fields.js"></script>
+  <script src="js/components/fab.js"></script>
+
+  <!-- 3. Domain Services & Business Logic (Flutter: lib/domain/services/) -->
+  <script src="js/services/record_service.js"></script>
+  <script src="js/services/workflow_service.js"></script>
+  <script src="js/services/master_service.js"></script>
+  <script src="js/services/tank_service.js"></script>
+  <script src="js/services/inspection_service.js"></script>
+
+  <!-- 4. Presentation Sheets & Modals (Flutter: lib/presentation/sheets/) -->
+  <script src="js/sheets/base_sheet.js"></script>
+  <script src="js/sheets/add_record_sheet.js"></script>
+  <script src="js/sheets/bulk_shift_sheet.js"></script>
+  <script src="js/sheets/master_add_sheet.js"></script>
+  <script src="js/sheets/tank_sheet.js"></script>
+  <script src="js/sheets/inspection_sheet.js"></script>
+  <script src="js/sheets/rbac_sheet.js"></script>
+
+  <!-- 5. Presentation Screens (Flutter: lib/presentation/screens/) -->
+  <script src="js/screens/home_screen.js?v=2"></script>
+  <script src="js/screens/sub_sections_screen.js?v=2"></script>
+  <script src="js/screens/records_screen.js?v=2"></script>
+  <script src="js/screens/record_details_screen.js?v=2"></script>
+  <script src="js/screens/tours_hub_screen.js?v=2"></script>
+  <script src="js/screens/tanks_screen.js?v=2"></script>
+  <script src="js/screens/settings_screen.js?v=2"></script>
+
+  <!-- 6. App Root Entry Point (Flutter: lib/main.dart) -->
   <script src="js/app.js"></script>
 </body>
 
