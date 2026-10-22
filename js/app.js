@@ -69,7 +69,16 @@ function bindDetailFormEvents() {
     const idx = sub.records.findIndex(r => r.id === state.selectedRecordId);
     if (idx !== -1) {
       obj.id = sub.records[idx].id;
-      sub.records[idx] = obj;
+      if (obj.manufactureDate && typeof calculateAssetAge === 'function') {
+        obj.assetAge = calculateAssetAge(obj.manufactureDate);
+      }
+      if (obj.requiredCount !== undefined && obj.actualCount !== undefined) {
+        obj.vacantCount = Math.max(0, (parseInt(obj.requiredCount) || 0) - (parseInt(obj.actualCount) || 0));
+      }
+      if (obj.startDate && obj.endDate && typeof calculateTimeElapsed === 'function') {
+        obj.timeElapsedPct = calculateTimeElapsed(obj.startDate, obj.endDate);
+      }
+      sub.records[idx] = { ...sub.records[idx], ...obj };
     }
     showToast('تم حفظ التعديلات بنجاح');
     openSubSection(state.selectedModuleId, state.selectedSubId, state.activeChildSubCode);

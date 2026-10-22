@@ -47,7 +47,8 @@ function renderInspectionToursHubView() {
           <div class="flex justify-between"><span class="text-[#6b7280]">القسم:</span> <strong>${tkt.department}</strong></div>
           <div class="flex justify-between"><span class="text-[#6b7280]">الموقع:</span> <strong>${tkt.location}</strong></div>
           <div class="flex justify-between"><span class="text-[#6b7280]">المُبلّغ:</span> <strong>${tkt.reporter}</strong></div>
-          <div class="flex justify-between"><span class="text-[#6b7280]">رقم CM:</span> <strong class="text-[#db6b49]">${tkt.cmNumber}</strong></div>
+          <div class="flex justify-between"><span class="text-[#6b7280]">هل تم فتح أمر عمل CM؟:</span> <strong class="${(tkt.hasCM === 'نعم' || tkt.cmNumber) ? 'text-[#00a63e]' : 'text-[#6b7280]'}">${tkt.hasCM || (tkt.cmNumber ? 'نعم' : 'لا')}</strong></div>
+          ${(tkt.hasCM === 'نعم' || tkt.cmNumber) ? `<div class="flex justify-between"><span class="text-[#6b7280]">رقم أمر العمل CM:</span> <strong class="text-[#db6b49] font-black">${tkt.cmNumber}</strong></div>` : ''}
           <div class="pt-2 border-t border-[#f3ece6]">
             <span class="text-[#6b7280] block mb-0.5">ملاحظات الإغلاق:</span>
             <p class="font-bold text-[#111827]">${tkt.closingNotes}</p>
@@ -86,16 +87,18 @@ function renderInspectionToursHubView() {
         `).join('')}
       </div>
 
-      <input type="text" value="${state.ticketSearchQuery}" oninput="state.ticketSearchQuery=this.value; renderApp();" placeholder="بحث في التذاكر..." class="w-full px-3.5 py-2 rounded-xl bg-white border border-[#ede7e2] text-xs font-medium" />
+      <input type="text" value="${state.ticketSearchQuery}" oninput="state.ticketSearchQuery=this.value; renderApp();" placeholder="بحث في تذاكر التفتيش..." class="w-full px-3.5 py-2 rounded-xl bg-white border border-[#ede7e2] text-xs font-medium" />
 
       <!-- Tickets Cards List -->
       <div class="space-y-2.5">
-        ${list.map(t => `
+        ${list.map(t => {
+          const hasCmText = (t.hasCM === 'نعم' || t.cmNumber) ? `CM #${t.cmNumber}` : 'بدون CM';
+          return `
           <div onclick="openTicketRecordDetails('${t.id}')" class="cursor-pointer bg-white rounded-2xl border border-[#ede7e2] p-3 shadow-2xs hover:border-[#db6b49] transition flex items-center justify-between gap-3">
             <div class="flex items-center gap-3 min-w-0 flex-1">
               <img src="${t.thumb}" alt="ticket" class="w-12 h-12 rounded-xl object-cover border border-[#e5dfd9] shrink-0" />
               <div class="min-w-0 flex-1">
-                <div class="text-[10px] text-[#6b7280] mb-0.5">${t.timeAgo} • CM #${t.cmNumber}</div>
+                <div class="text-[10px] text-[#6b7280] mb-0.5">${t.timeAgo} • <span class="${(t.hasCM === 'نعم' || t.cmNumber) ? 'text-[#db6b49] font-bold' : 'text-[#9ca3af]'}">${hasCmText}</span></div>
                 <div class="font-bold text-xs text-[#111827] truncate mb-1">${t.title}</div>
                 <div class="flex items-center gap-1.5">
                   <span class="px-2 py-0.5 rounded-md bg-[#f3ece6] text-[#374151] text-[10px] font-bold">${t.department}</span>
@@ -105,7 +108,8 @@ function renderInspectionToursHubView() {
             </div>
             <span class="text-[#9ca3af] text-sm font-bold shrink-0">←</span>
           </div>
-        `).join('')}
+        `;
+        }).join('')}
       </div>
     </div>
   `;

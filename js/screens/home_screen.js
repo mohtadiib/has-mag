@@ -8,9 +8,9 @@
  * ودجت إحصاءات التذاكر وشبكة الأقسام الفنية الـ 12
  */
 function renderTicketsAndDepartmentsWidget() {
-  const totalCount = 387 + INSPECTION_TICKETS.length;
+  const totalCount = INSPECTION_TICKETS.length;
   const openCount = INSPECTION_TICKETS.filter(t => t.status === 'مفتوحة').length;
-  const closedCount = 382 + INSPECTION_TICKETS.filter(t => t.status === 'مغلقة').length;
+  const closedCount = INSPECTION_TICKETS.filter(t => t.status === 'مغلقة').length;
 
   return `
     <div class="space-y-4">
@@ -18,14 +18,9 @@ function renderTicketsAndDepartmentsWidget() {
       <div class="space-y-2">
         <div class="flex items-center justify-between">
           <h2 class="text-sm font-extrabold text-[#111827]">إحصاءات التذاكر</h2>
-          <div class="flex items-center gap-2">
-            <button type="button" onclick="openNewInspectionSheet()" class="px-2.5 py-1 rounded-xl bg-[#db6b49] hover:bg-[#c65635] text-white text-[11px] font-extrabold flex items-center gap-1 shadow-xs transition active:scale-95">
-              <span>+ تذكرة جديدة</span>
-            </button>
-            <button type="button" onclick="openDeptTickets('الكل')" class="text-xs font-bold text-[#db6b49] hover:underline">
-              عرض كل التذاكر ←
-            </button>
-          </div>
+          <button type="button" onclick="openDeptTickets('الكل')" class="text-xs font-bold text-[#db6b49] hover:underline">
+            عرض كل التذاكر ←
+          </button>
         </div>
 
         <div class="grid grid-cols-3 gap-2 text-center">

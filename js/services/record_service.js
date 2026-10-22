@@ -69,6 +69,22 @@ function submitAddModalForm(e, modId, subId) {
     obj.availableQty = obj.prevQty + obj.incomingQty - obj.issuedQty;
   }
 
+  if (sub.id === 'sub_spr' || sub.id === 'sub_mrf' || sub.id === 'sub_cash') {
+    obj.items = obj.items || [];
+  }
+  if (sub.id === 'sub_stock') {
+    obj.movements = obj.movements || [];
+  }
+  if (obj.manufactureDate && typeof calculateAssetAge === 'function') {
+    obj.assetAge = calculateAssetAge(obj.manufactureDate);
+  }
+  if (obj.requiredCount !== undefined && obj.actualCount !== undefined) {
+    obj.vacantCount = Math.max(0, (parseInt(obj.requiredCount) || 0) - (parseInt(obj.actualCount) || 0));
+  }
+  if (obj.startDate && obj.endDate && typeof calculateTimeElapsed === 'function') {
+    obj.timeElapsedPct = calculateTimeElapsed(obj.startDate, obj.endDate);
+  }
+
   if (!sub.records) sub.records = [];
   sub.records.unshift(obj);
   closeBottomSheet();

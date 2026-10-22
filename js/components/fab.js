@@ -4,10 +4,85 @@
 // ============================================================================
 
 /**
+ * التحقق مما إذا كانت الصفحة والشاشة الحالية تدعم عملية إضافة حقيقية
+ * @returns {boolean}
+ */
+function shouldShowAddButton() {
+  // 1. عند استعراض وتعديل تفاصيل سجل أو تذكرة (Level 4) -> لا توجد إضافة
+  if (state.navLevel === 4) {
+    return false;
+  }
+
+  // 2. تبويب الجولات والتذاكر (tours_hub) -> يدعم إضافة تذكرة فحص جديدة
+  if (state.activeTab === 'tours_hub') {
+    return true;
+  }
+
+  // 3. تبويب الخزانات (tanks_dash) -> شاشة مراقبة ومناسيب فقط، والتوريد/الصرف يتم عبر بطاقات الخزانات مباشرة
+  if (state.activeTab === 'tanks_dash') {
+    return false;
+  }
+
+  // 4. تبويب الإعدادات والماستر داتا (more)
+  if (state.activeTab === 'more') {
+    // الشاشة الرئيسية للإعدادات أو سعات الخزانات (التي تعدل مباشرة في بطاقاتها) -> لا توجد إضافة
+    if (!state.masterEditorCat || state.masterEditorCat === 'tanksConfig') {
+      return false;
+    }
+    // صفحات محرر عناصر الماستر داتا (الأقسام، الأنظمة، المواقع، الموظفين، الجهات، الأولويات، الأصناف) -> تدعم الإضافة الحقيقية
+    return true;
+  }
+
+  // 5. تبويب الرئيسية والوحدات التشغيلية (home)
+  if (state.activeTab === 'home') {
+    // المستوى 1 (شبكة الوحدات التشغيلية الـ 12) -> لا توجد إضافة
+    if (state.navLevel === 1) {
+      return false;
+    }
+
+    // المستوى 2 (استعراض وتحديد الأقسام والتفريعات) -> لا توجد إضافة
+    if (state.navLevel === 2) {
+      return false;
+    }
+
+    // المستوى 3 (السجلات التشغيلية داخل القسم الفرعي)
+    if (state.navLevel === 3) {
+      const sub = getSubSection();
+      if (!sub) return false;
+
+      // الخزانات التفاعلية (المخزون والصرف، التوريد، المياه) -> التوريد والصرف يتم عبر أزرار كل خزان مباشرة
+      if (sub.isInteractiveTanks) {
+        return false;
+      }
+
+      // إذا كان القسم يحتوي على تصنيفات فرعية ثلاثية المستويات وكان في شاشة اختيار الأيقونة
+      if (sub.hasChildSubIcons && state.activeChildSubCode === 'الكل') {
+        return false;
+      }
+
+      // إذا كانت مجموعة فرعية منتقاة وما زال يختار من أيقوناتها (مثل اختيار فترة الصيانة الوقائية)
+      const activeGroup = sub.hasChildSubIcons 
+        ? (sub.childSubOptions || []).find(o => o.isGroup && o.code === state.activeChildSubCode) 
+        : null;
+      if (activeGroup) {
+        return false;
+      }
+
+      // باقي الأقسام الفرعية التشغيلية التي تحتوي على نماذج وسجلات حقيقية -> إظهار زر الإضافة
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
  * معالج النقر على زر الإضافة العائم الدائري حسب الصفحة والشاشة الحالية
  */
 function handleGlobalFabClick() {
-  // 1. إذا كان المستخدم في تبويب الجولات والتذاكر
+  if (!shouldShowAddButton()) return;
+
+  // 1. إذا كان المستخدم في تبويب الجولات والتذاكر -> إضافة تذكرة فحص جديدة
   if (state.activeTab === 'tours_hub') {
     if (typeof openNewInspectionSheet === 'function') {
       openNewInspectionSheet();
@@ -15,35 +90,19 @@ function handleGlobalFabClick() {
     return;
   }
 
-  // 2. إذا كان المستخدم في تبويب الخزانات والمحروقات
-  if (state.activeTab === 'tanks_dash') {
-    if (typeof openTankSheet === 'function') {
-      openTankSheet('tank_diesel_main', 'supply');
+  // 2. إذا كان المستخدم في محرر الماستر داتا (الأقسام، الأنظمة، المواقع، الموظفين، الجهات، الأولويات، الأصناف)
+  if (state.activeTab === 'more' && state.masterEditorCat && state.masterEditorCat !== 'tanksConfig') {
+    if (typeof openMasterAddModal === 'function') {
+      openMasterAddModal(state.masterEditorCat);
     }
     return;
   }
 
-  // 3. إذا كان المستخدم في تبويب الإعدادات والماستر داتا
-  if (state.activeTab === 'more') {
-    if (state.masterEditorCat) {
-      if (state.masterEditorCat === 'tanksConfig') {
-        showToast('سعات الخزانات تُعدل مباشرة من حقول البطاقات');
-        return;
-      }
-      if (typeof openMasterAddModal === 'function') {
-        openMasterAddModal(state.masterEditorCat);
-      }
-    } else {
-      openQuickAddSheet();
-    }
-    return;
-  }
-
-  // 4. إذا كان في مستوى استعراض السجلات التشغيلية (Level 3)
-  if (state.navLevel === 3) {
+  // 3. إذا كان في مستوى استعراض السجلات التشغيلية (Level 3)
+  if (state.activeTab === 'home' && state.navLevel === 3) {
     const mod = getModule();
     const sub = getSubSection();
-    if (!sub) return;
+    if (!sub || sub.isInteractiveTanks) return;
 
     if (sub.id === 'sub_attendance') {
       const targetShift = (state.activeChildSubCode !== 'الكل' && state.activeChildSubCode !== 'عرض الكل') 
@@ -55,36 +114,15 @@ function handleGlobalFabClick() {
       return;
     }
 
-    if (sub.isInteractiveTanks) {
-      if (typeof openTankSheet === 'function') {
-        openTankSheet(state.tanksData?.[0]?.id || 'tank_diesel_main', 'supply');
-      }
-      return;
-    }
-
     if (typeof openAddModal === 'function') {
       openAddModal(mod.id, sub.id);
     }
     return;
   }
-
-  // 5. إذا كان في مستوى تفريعات الوحدة (Level 2)
-  if (state.navLevel === 2) {
-    const mod = getModule();
-    if (mod && mod.subSections.length === 1) {
-      openAddModal(mod.id, mod.subSections[0].id);
-      return;
-    }
-    openQuickAddSheet();
-    return;
-  }
-
-  // 6. شاشة الرئيسية (Level 1) - نافذة الإجراءات السريعة
-  openQuickAddSheet();
 }
 
 /**
- * نافذة الإجراءات السريعة للإضافة عند النقر على الزر العائم في الصفحة الرئيسية
+ * نافذة الإجراءات السريعة للإضافة (متاحة كدالة مساعدة)
  */
 function openQuickAddSheet() {
   const actions = [
@@ -150,39 +188,50 @@ function openQuickAddSheet() {
 }
 
 /**
- * تحديث ظهور الزر العائم ونصه التوضيحي حسب الشاشة المعروضة
+ * تحديث ظهور الزر العائم ونصه التوضيحي حسب الشاشة المعروضة فقط إذا كانت تدعم إضافة حقيقية
  */
 function updateFabVisibility() {
   const fab = document.getElementById('globalFabBtn');
   if (!fab) return;
 
-  // إخفاء الزر العائم عند عرض تفاصيل السجل وتعديله (Level 4) لتجنب التشتيت
-  if (state.navLevel === 4) {
+  const show = shouldShowAddButton();
+  if (!show) {
     fab.classList.add('hidden');
     return;
   }
 
-  // إظهار الزر العائم في جميع الشاشات الأخرى
+  // إظهار الزر العائم فقط في الصفحات التي بها إضافة حقيقية
   fab.classList.remove('hidden');
 
-  // تحديث التلميح المناسب
+  // تحديث التلميح المناسب حسب الصفحة والشاشة
   if (state.activeTab === 'tours_hub') {
     fab.setAttribute('title', 'إضافة تذكرة جولة جديدة');
     fab.setAttribute('aria-label', 'إضافة تذكرة جولة جديدة');
-  } else if (state.activeTab === 'tanks_dash') {
-    fab.setAttribute('title', 'تسجيل توريد وقود خزان');
-    fab.setAttribute('aria-label', 'تسجيل توريد وقود خزان');
   } else if (state.activeTab === 'more' && state.masterEditorCat) {
-    fab.setAttribute('title', 'إضافة عنصر ماستر داتا');
-    fab.setAttribute('aria-label', 'إضافة عنصر ماستر داتا');
-  } else if (state.navLevel === 3) {
+    const catTitles = {
+      departments: 'قسم فني جديد',
+      systems: 'نظام فني جديد',
+      locations: 'موقع جديد',
+      employees: 'موظف جديد',
+      entities: 'جهة مُبلّغة جديدة',
+      priorities: 'أولوية جديدة',
+      catalog: 'صنف / أصل جديد'
+    };
+    const title = catTitles[state.masterEditorCat] ? `إضافة ${catTitles[state.masterEditorCat]}` : 'إضافة عنصر ماستر داتا';
+    fab.setAttribute('title', title);
+    fab.setAttribute('aria-label', title);
+  } else if (state.activeTab === 'home' && state.navLevel === 3) {
     const sub = getSubSection();
     if (sub && sub.id === 'sub_attendance') {
-      fab.setAttribute('title', 'تحديد موظفي الوردية');
-      fab.setAttribute('aria-label', 'تحديد موظفي الوردية');
+      const shiftName = (state.activeChildSubCode !== 'الكل' && state.activeChildSubCode !== 'عرض الكل')
+        ? ` (${state.activeChildSubCode})`
+        : '';
+      fab.setAttribute('title', `تحديد موظفي الوردية${shiftName}`);
+      fab.setAttribute('aria-label', `تحديد موظفي الوردية${shiftName}`);
     } else {
-      fab.setAttribute('title', `إضافة سجل جديد في ${sub ? sub.shortTitle : ''}`);
-      fab.setAttribute('aria-label', `إضافة سجل جديد في ${sub ? sub.shortTitle : ''}`);
+      const title = sub ? `إضافة سجل جديد في ${sub.shortTitle}` : 'إضافة جديد';
+      fab.setAttribute('title', title);
+      fab.setAttribute('aria-label', title);
     }
   } else {
     fab.setAttribute('title', 'إضافة جديد');
@@ -190,6 +239,7 @@ function updateFabVisibility() {
   }
 }
 
+window.shouldShowAddButton = shouldShowAddButton;
 window.handleGlobalFabClick = handleGlobalFabClick;
 window.openQuickAddSheet = openQuickAddSheet;
 window.updateFabVisibility = updateFabVisibility;

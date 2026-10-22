@@ -185,9 +185,6 @@ function renderSubHeader() {
           </button>
           <h2 class="font-black text-lg text-[#111827] truncate">قسم الجولات والأقسام</h2>
         </div>
-        <button type="button" onclick="openNewInspectionSheet()" class="px-3 py-1.5 rounded-xl bg-[#db6b49] hover:bg-[#c65635] text-white text-[11px] font-extrabold flex items-center gap-1 shadow-xs shrink-0">
-          <span>+ تذكرة جديدة</span>
-        </button>
       `;
     } else if (state.navLevel === 3 || state.viewingTicketsListInHub) {
       bar.innerHTML = `
@@ -197,9 +194,6 @@ function renderSubHeader() {
           </button>
           <h2 class="font-black text-lg text-[#111827] truncate">التذاكر (${state.ticketFilterDept})</h2>
         </div>
-        <button type="button" onclick="openNewInspectionSheet()" class="px-3 py-1.5 rounded-xl bg-[#db6b49] hover:bg-[#c65635] text-white text-[11px] font-extrabold flex items-center gap-1 shadow-xs shrink-0">
-          <span>+ تذكرة جديدة</span>
-        </button>
       `;
     } else if (state.navLevel === 4) {
       bar.innerHTML = `

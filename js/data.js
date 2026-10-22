@@ -92,7 +92,8 @@ const MASTER_DATA = {
     { id: 'SYS-70', name: 'BECON LIGHTS', department: 'الانارة الملاحية (AFL)' },
     { id: 'SYS-71', name: 'APRON HIGH MAST LIGHTS', department: 'الانارة الملاحية (AFL)' },
     { id: 'SYS-72', name: 'GUIDANCE SIGNS', department: 'الانارة الملاحية (AFL)' },
-    { id: 'SYS-73', name: 'OTHERS', department: 'الانارة الملاحية (AFL)' }
+    { id: 'SYS-73', name: 'OTHERS', department: 'الانارة الملاحية (AFL)' },
+    { id: 'SYS-OTH', name: 'أخرى', department: 'الكل' }
   ],
   locations: [
     { id: 'LOC-01', name: 'صالات المسافرين (terminal)', code: 'terminal', arName: 'صالات المسافرين', type: 'مرفق تشغيلي' },
@@ -209,7 +210,8 @@ const MASTER_DATA = {
     { id: 'TNK-P3', station: 'محطة الكهرباء', category: 'وقود', name: 'خزان محطة الكهرباء 3', capacity: 80000, currentLiters: 68800, locked: true, lastSupplyDate: '2026-10-12' },
     { id: 'TNK-W1', station: 'شبكة المياه', category: 'مياه', name: 'الخزان الرئيسي للمياه', capacity: 500000, currentLiters: 410000, locked: true, lastSupplyDate: '2026-10-18' },
     { id: 'TNK-W2', station: 'شبكة المياه', category: 'مياه', name: 'الخزان الاحتياطي للمياه', capacity: 300000, currentLiters: 285000, locked: true, lastSupplyDate: '2026-10-18' },
-    { id: 'TNK-W3', station: 'شبكة المياه', category: 'مياه', name: 'خزان نظام إطفاء الحريق', capacity: 250000, currentLiters: 250000, locked: true, lastSupplyDate: '2026-10-18' }
+    { id: 'TNK-W3', station: 'شبكة المياه', category: 'مياه', name: 'خزان نظام إطفاء الحريق', capacity: 250000, currentLiters: 250000, locked: true, lastSupplyDate: '2026-10-18' },
+    { id: 'TNK-W4', station: 'شبكة المياه', category: 'مياه', name: 'خزان مبنى الإطفاء', capacity: 150000, currentLiters: 135000, locked: true, lastSupplyDate: '2026-10-18' }
   ],
   catalog: [
     { id: 'CAT-01', type: 'صنف مخزني', name: 'كشاف إنارة مدرج LED متكامل 200W' },
@@ -273,14 +275,50 @@ const MASTER_DATA = {
 };
 
 // ============================================================================
+// LOGS & TRANSACTION HISTORIES (سجلات التوريد والصرف التفصيلية بناءً على المتطلبات)
+// ============================================================================
+const FUEL_SUPPLY_LOGS = [
+  { id: 'FSL-01', date: '2026-10-18', time: '09:30', station: 'محطة الوقود', tankId: 'TNK-G1', fuelType: 'بنزين 91', liters: 18000, supplier: 'شركة أرامكو السعودية', note: 'توريد دوري منتظم' },
+  { id: 'FSL-02', date: '2026-10-17', time: '14:15', station: 'محطة الوقود', tankId: 'TNK-D1', fuelType: 'ديزل', liters: 25000, supplier: 'شركة بترومين', note: 'توريد خزان الديزل الرئيسي' },
+  { id: 'FSL-03', date: '2026-10-16', time: '11:00', station: 'محطة الكهرباء', tankId: 'TNK-P1', fuelType: 'ديزل', liters: 20000, supplier: 'أرامكو - ناقلات المطار', note: 'تفريغ في خزان محطة الكهرباء 1' },
+  { id: 'FSL-04', date: '2026-10-14', time: '10:30', station: 'محطة الكهرباء', tankId: 'TNK-P2', fuelType: 'ديزل', liters: 15000, supplier: 'أرامكو - ناقلات المطار', note: 'تفريغ في خزان محطة الكهرباء 2' }
+];
+
+const FUEL_DISPENSE_LOGS = [
+  { id: 'FDL-01', date: '2026-10-19', time: '08:15', carType: 'وانيت تويوتا هايلوكس', plateNo: 'أ ب د 1042', entity: 'الإطفاء والإنقاذ (CFR)', fuelType: 'بنزين 91', liters: 65, driverName: 'سلطان الحربي', note: 'دورية مدرج وتفقد ساحة الطيران' },
+  { id: 'FDL-02', date: '2026-10-19', time: '09:40', carType: 'شاحنة مرسيدس صهريج', plateNo: 'ح ل ط 5521', entity: 'المركبات والمعدات (Motor Pool)', fuelType: 'ديزل', liters: 180, driverName: 'محمد الشهري', note: 'تشغيل المضخات الميدانية' },
+  { id: 'FDL-03', date: '2026-10-18', time: '16:20', carType: 'فورد إكسبدشن أمني', plateNo: 'ق ص ر 8890', entity: 'أمن المطار', fuelType: 'بنزين 91', liters: 85, driverName: 'خالد العنزي', note: 'دورية المحيط الخارجي' },
+  { id: 'FDL-04', date: '2026-10-18', time: '18:00', carType: 'باص نقل فنيين تويوتا كوستر', plateNo: 'ع ب س 3120', entity: 'الصيانة والتشغيل (Has Mag)', fuelType: 'ديزل', liters: 90, driverName: 'أحمد الرشيدي', note: 'نقل فنيي الوردية B' }
+];
+
+const WATER_SUPPLY_LOGS = [
+  { id: 'WSL-01', date: '2026-10-19', time: '07:30', liters: 64000, tankersCount: 2, tankId: 'TNK-W1', tankName: 'الخزان الرئيسي للمياه', note: 'توريد توريدتين (تريلتين) بسعة 32,000 لتر لكل تنكر' },
+  { id: 'WSL-02', date: '2026-10-18', time: '10:00', liters: 96000, tankersCount: 3, tankId: 'TNK-W1', tankName: 'الخزان الرئيسي للمياه', note: 'توريد 3 تناكر مياه صالحة للشرب' },
+  { id: 'WSL-03', date: '2026-10-18', time: '15:20', liters: 32000, tankersCount: 1, tankId: 'TNK-W4', tankName: 'خزان مبنى الإطفاء', note: 'توريد تنكر مياه لخزان مبنى الإطفاء' },
+  { id: 'WSL-04', date: '2026-10-17', time: '11:45', liters: 64000, tankersCount: 2, tankId: 'TNK-W2', tankName: 'الخزان الاحتياطي للمياه', note: 'توريد تنكرين مياه للخزان الاحتياطي' }
+];
+
+const SEWAGE_PULL_LOGS = [
+  { id: 'SPL-01', date: '2026-10-19', time: '08:00', stationName: 'محطة رفع 1', tankerType: 'ضاغط', tankersCount: 2, pulledLiters: 24000, driverName: 'سعد العلي' },
+  { id: 'SPL-02', date: '2026-10-19', time: '09:30', stationName: 'محطة رفع 2', tankerType: 'ترلة', tankersCount: 1, pulledLiters: 22000, driverName: 'منصور القحطاني' },
+  { id: 'SPL-03', date: '2026-10-19', time: '11:15', stationName: 'محطة رفع 3', tankerType: 'ضاغط', tankersCount: 1, pulledLiters: 12000, driverName: 'فيصل الشمري' },
+  { id: 'SPL-04', date: '2026-10-19', time: '13:00', stationName: 'محطة رفع 4', tankerType: 'ضاغط', tankersCount: 1, pulledLiters: 12000, driverName: 'سعد العلي' },
+  { id: 'SPL-05', date: '2026-10-19', time: '14:30', stationName: 'محطة رفع 5', tankerType: 'ضاغط', tankersCount: 1, pulledLiters: 12000, driverName: 'فيصل الشمري' },
+  { id: 'SPL-06', date: '2026-10-19', time: '16:00', stationName: 'محطة الصرف sewage plant', tankerType: 'ترلة', tankersCount: 2, pulledLiters: 48000, driverName: 'منصور القحطاني' },
+  { id: 'SPL-07', date: '2026-10-18', time: '08:30', stationName: 'محطة رفع 1', tankerType: 'ضاغط', tankersCount: 2, pulledLiters: 24000, driverName: 'سعد العلي' },
+  { id: 'SPL-08', date: '2026-10-18', time: '10:00', stationName: 'محطة رفع 2', tankerType: 'ترلة', tankersCount: 1, pulledLiters: 22000, driverName: 'منصور القحطاني' },
+  { id: 'SPL-09', date: '2026-10-18', time: '12:00', stationName: 'محطة الصرف sewage plant', tankerType: 'ترلة', tankersCount: 3, pulledLiters: 72000, driverName: 'منصور القحطاني' }
+];
+
+// ============================================================================
 // INSPECTION TOURS & TICKETS DATA (موجودة داخل قسم الجولات وداخل محطة العمل)
 // ============================================================================
 const INSPECTION_TICKETS = [
-  { id: 'TKT-101', title: 'فحص ومعايرة ميزان العفش', department: 'HVAC', location: 'صالة القدوم', status: 'مفتوحة', timeAgo: 'منذ يومين', responseTime: '1 دقيقة', totalDuration: '12 دقيقة', maintDuration: '11 دقيقة', reporter: 'Mazen (Inspector)', cmNumber: '309', thumb: ICON_PATHS.photoBefore, afterPhoto: ICON_PATHS.photoAfter, closingNotes: 'تم معايرة الميزان واستبدال الحساس بنجاح.' },
-  { id: 'TKT-102', title: 'صيانة وتنظيف وحدة التكييف في مصلى النساء', department: 'HVAC', location: 'مصلى النساء - الصالة', status: 'مغلقة', timeAgo: 'منذ يومين', responseTime: '1 دقيقة', totalDuration: '12 دقيقة', maintDuration: '11 دقيقة', reporter: 'Mazen (Inspector)', cmNumber: '309', thumb: ICON_PATHS.photoAfter, afterPhoto: ICON_PATHS.photoBefore, closingNotes: 'تم غسيل الفلاتر وضبط التبريد وإغلاق التذكرة.' },
-  { id: 'TKT-103', title: 'إصلاح كسر باب منطقة البوابات', department: 'Motor Pool', location: 'بوابة المغادرة 3', status: 'مفتوحة', timeAgo: 'منذ 5 أيام', responseTime: '3 دقائق', totalDuration: '20 دقيقة', maintDuration: '17 دقيقة', reporter: 'Mazen (Inspector)', cmNumber: '312', thumb: ICON_PATHS.photoBefore, afterPhoto: ICON_PATHS.photoAfter, closingNotes: 'جاري استكمال تثبيت المفصلات الهيدروليكية.' },
-  { id: 'TKT-104', title: 'رش ومكافحة الحشرات بالمنطقة الخارجية', department: 'Pest Control', location: 'الساحة الخارجية', status: 'مفتوحة', timeAgo: 'منذ 5 أيام', responseTime: '2 دقائق', totalDuration: '15 دقيقة', maintDuration: '13 دقيقة', reporter: 'Mazen (Inspector)', cmNumber: '315', thumb: ICON_PATHS.photoAfter, afterPhoto: ICON_PATHS.photoBefore, closingNotes: 'تم تنفيذ الرش الوقائي الدوري.' },
-  { id: 'TKT-105', title: 'تنظيف وتعقيم صالة القدوم الدولية', department: 'Janitorial', location: 'صالة الركاب الدولية 1', status: 'مفتوحة', timeAgo: 'منذ 3 أيام', responseTime: '2 دقائق', totalDuration: '25 دقيقة', maintDuration: '23 دقيقة', reporter: 'Mazen (Inspector)', cmNumber: '318', thumb: ICON_PATHS.photoBefore, afterPhoto: ICON_PATHS.photoAfter, closingNotes: 'تم التعقيم بالكامل.' }
+  { id: 'TKT-101', title: 'فحص ومعايرة ميزان العفش', department: 'HVAC', location: 'صالة القدوم', status: 'مفتوحة', timeAgo: 'منذ يومين', responseTime: '1 دقيقة', totalDuration: '12 دقيقة', maintDuration: '11 دقيقة', reporter: 'Mazen (Inspector)', hasCM: 'نعم', cmNumber: '309', thumb: ICON_PATHS.photoBefore, afterPhoto: ICON_PATHS.photoAfter, closingNotes: 'تم معايرة الميزان واستبدال الحساس بنجاح.' },
+  { id: 'TKT-102', title: 'صيانة وتنظيف وحدة التكييف في مصلى النساء', department: 'HVAC', location: 'مصلى النساء - الصالة', status: 'مغلقة', timeAgo: 'منذ يومين', responseTime: '1 دقيقة', totalDuration: '12 دقيقة', maintDuration: '11 دقيقة', reporter: 'Mazen (Inspector)', hasCM: 'نعم', cmNumber: '309', thumb: ICON_PATHS.photoAfter, afterPhoto: ICON_PATHS.photoBefore, closingNotes: 'تم غسيل الفلاتر وضبط التبريد وإغلاق التذكرة.' },
+  { id: 'TKT-103', title: 'إصلاح كسر باب منطقة البوابات', department: 'Motor Pool', location: 'بوابة المغادرة 3', status: 'مفتوحة', timeAgo: 'منذ 5 أيام', responseTime: '3 دقائق', totalDuration: '20 دقيقة', maintDuration: '17 دقيقة', reporter: 'Mazen (Inspector)', hasCM: 'نعم', cmNumber: '312', thumb: ICON_PATHS.photoBefore, afterPhoto: ICON_PATHS.photoAfter, closingNotes: 'جاري استكمال تثبيت المفصلات الهيدروليكية.' },
+  { id: 'TKT-104', title: 'رش ومكافحة الحشرات بالمنطقة الخارجية', department: 'Pest Control', location: 'الساحة الخارجية', status: 'مفتوحة', timeAgo: 'منذ 5 أيام', responseTime: '2 دقائق', totalDuration: '15 دقيقة', maintDuration: '13 دقيقة', reporter: 'Mazen (Inspector)', hasCM: 'نعم', cmNumber: '315', thumb: ICON_PATHS.photoAfter, afterPhoto: ICON_PATHS.photoBefore, closingNotes: 'تم تنفيذ الرش الوقائي الدوري.' },
+  { id: 'TKT-105', title: 'تنظيف وتعقيم صالة القدوم الدولية', department: 'Janitorial', location: 'صالة الركاب الدولية 1', status: 'مفتوحة', timeAgo: 'منذ 3 أيام', responseTime: '2 دقائق', totalDuration: '25 دقيقة', maintDuration: '23 دقيقة', reporter: 'Mazen (Inspector)', hasCM: 'لا', cmNumber: '', thumb: ICON_PATHS.photoBefore, afterPhoto: ICON_PATHS.photoAfter, closingNotes: 'تم التعقيم بالكامل.' }
 ];
 
 // ============================================================================
@@ -668,9 +706,9 @@ const SYSTEM_MODULES = [
   {
     id: 'mod_inspection_tours',
     textIcon: '📋',
-    shortTitle: 'قسم الجولات',
-    excelName: 'ملاحظات الجولات اليوميه',
-    fullTitle: 'ملاحظات الجولات اليومية (التذاكر والأقسام الـ 12)',
+    shortTitle: 'جولات التفتيش اليومية',
+    excelName: 'جولات التفتيش اليومية',
+    fullTitle: 'جولات التفتيش اليومية (التذاكر والأقسام الـ 12)',
     helpText: 'متابعة مؤشرات أداء التذاكر الميدانية، أزمنة الاستجابة والصيانة، وتوزيع الملاحظات على الأقسام الفنية الـ 12.',
     icon: ICON_PATHS.Janitorial,
     badge: 5,
@@ -698,87 +736,164 @@ const SYSTEM_MODULES = [
         helpText: 'متابعة طلبات الشراء لقطع الغيار والمواد التشغيلية وحالة استلامها بالمستودع.',
         icon: ICON_PATHS.Warehouse,
         summaryKeys: [
-          { key: 'sprNo', label: 'SPR NO' },
-          { key: 'department', label: 'القسم' },
-          { key: 'system', label: 'النظام' }
+          { key: 'sprNo', label: 'رقم SPR' },
+          { key: 'system', label: 'اسم النظام' },
+          { key: 'createdDate', label: 'تاريخ الطلب' },
+          { key: 'status', label: 'حالة الاستلام' }
         ],
         fields: [
-          { key: 'sprNo', label: 'رقم SPR (SPR NO)', type: 'text' },
-          { key: 'createdDate', label: 'تاريخ الإنشاء', type: 'date' },
-          { key: 'department', label: 'القسم المختص', type: 'master_dept' },
-          { key: 'system', label: 'النظام الفني', type: 'master_system' },
-          { key: 'attachmentNo', label: 'رقم المرفق', type: 'text' },
-          { key: 'partName', label: 'القطعة المطلوبة', type: 'text' },
-          { key: 'reqQty', label: 'العدد المطلوب', type: 'number' },
-          { key: 'recQty', label: 'العدد المستلم', type: 'number' },
-          { key: 'recDate', label: 'تاريخ الاستلام', type: 'date' }
+          { key: 'sprNo', label: 'رقم SPR', type: 'text' },
+          { key: 'system', label: 'اسم النظام', type: 'master_system' },
+          { key: 'createdDate', label: 'تاريخ الطلب', type: 'date' },
+          { key: 'status', label: 'حالة الاستلام', type: 'select', options: ['مستلم بالكامل', 'مستلم جزئياً', 'قيد الانتظار'] },
+          { key: 'woNumber', label: 'رقم أمر العمل (CM / RM)', type: 'text' },
+          { key: 'woStatus', label: 'حالة أمر العمل', type: 'select', options: ['مفتوح', 'مغلق'] }
         ],
         records: [
-          { id: 'SPR-01', sprNo: 'SPR-2026-0041', createdDate: '2026-10-12', department: 'الإنارة الملاحية (AFL)', system: 'نظام الإنارة الملاحية للمدرج (AGL)', partName: 'كشاف إنارة مدرج LED متكامل 200W', reqQty: 20, recQty: 20, recDate: '2026-10-16', attachmentNo: 'ATT-881' }
+          {
+            id: 'SPR-01',
+            sprNo: 'SPR-2026-0041',
+            system: 'نظام الإنارة الملاحية للمدرج (AGL)',
+            createdDate: '2026-10-12',
+            status: 'مستلم بالكامل',
+            woNumber: 'CM-2026-881',
+            woStatus: 'مغلق',
+            items: [
+              { partName: 'كشاف إنارة مدرج LED متكامل 200W', reqQty: 20, recQty: 20, recDate: '2026-10-16', woNumber: 'CM-2026-881', woStatus: 'مغلق' },
+              { partName: 'كابل تأريض نحاسي مجدول 25mm', reqQty: 50, recQty: 50, recDate: '2026-10-17', woNumber: 'CM-2026-881', woStatus: 'مغلق' }
+            ]
+          },
+          {
+            id: 'SPR-02',
+            sprNo: 'SPR-2026-0042',
+            system: 'نظام مناولة وسيور الأمتعة (BHS)',
+            createdDate: '2026-10-15',
+            status: 'مستلم جزئياً',
+            woNumber: 'RM-2026-502',
+            woStatus: 'مفتوح',
+            items: [
+              { partName: 'رولمان بلي محوري لسيور العفش', reqQty: 12, recQty: 12, recDate: '2026-10-18', woNumber: 'RM-2026-502', woStatus: 'مغلق' },
+              { partName: 'سير مطاطي مقوى عرض 800mm', reqQty: 4, recQty: 2, recDate: '2026-10-19', woNumber: 'RM-2026-502', woStatus: 'مفتوح' }
+            ]
+          }
         ]
       },
       {
         id: 'sub_mrf',
         textIcon: '📤',
-        shortTitle: 'صرف المواد MRF',
-        helpText: 'تسجيل طلبات صرف المواد وقطع الغيار للأقسام والأنظمة الفنية بالمطار.',
+        shortTitle: 'طلبات الـ MRF',
+        helpText: 'تسجيل طلبات صرف المواد وقطع الغيار للأعطال أو تغذية الرصيد المستودعي.',
         icon: ICON_PATHS.Warehouse,
         summaryKeys: [
-          { key: 'mrfNo', label: 'MRF NO' },
-          { key: 'department', label: 'القسم' },
-          { key: 'system', label: 'النظام' }
+          { key: 'mrfNo', label: 'رقم MRF' },
+          { key: 'system', label: 'اسم النظام' },
+          { key: 'createdDate', label: 'تاريخ الطلب' },
+          { key: 'status', label: 'حالة الاستلام' }
         ],
         fields: [
-          { key: 'mrfNo', label: 'رقم MRF (MRF NO)', type: 'text' },
-          { key: 'createdDate', label: 'تاريخ الإنشاء', type: 'date' },
-          { key: 'department', label: 'القسم المختص', type: 'master_dept' },
-          { key: 'system', label: 'النظام الفني', type: 'master_system' },
-          { key: 'attachmentNo', label: 'رقم المرفق', type: 'text' },
-          { key: 'partName', label: 'القطعة المطلوبة', type: 'text' },
-          { key: 'reqQty', label: 'العدد المطلوب', type: 'number' },
-          { key: 'recQty', label: 'العدد المستلم', type: 'number' },
-          { key: 'recDate', label: 'تاريخ الاستلام', type: 'date' },
-          { key: 'notes', label: 'ملاحظات', type: 'textarea' }
+          { key: 'mrfNo', label: 'رقم MRF', type: 'text' },
+          { key: 'mrfType', label: 'نوع الطلب', type: 'select', options: ['عطل', 'رصيد مستودعي'] },
+          { key: 'system', label: 'اسم النظام (خاص بالأعطال)', type: 'master_system' },
+          { key: 'createdDate', label: 'تاريخ الطلب', type: 'date' },
+          { key: 'status', label: 'حالة الاستلام', type: 'select', options: ['مستلم بالكامل', 'مستلم جزئياً', 'قيد الانتظار'] },
+          { key: 'woNumber', label: 'رقم أمر العمل (CM / RM)', type: 'text' },
+          { key: 'woStatus', label: 'حالة أمر العمل', type: 'select', options: ['مفتوح', 'مغلق'] }
         ],
         records: [
-          { id: 'MRF-01', mrfNo: 'MRF-2026-0118', createdDate: '2026-10-14', department: 'الميكانيكا (Mechanical)', system: 'نظام مناولة وسيور الأمتعة (BHS)', partName: 'رولمان بلي محوري لسيور العفش', reqQty: 12, recQty: 12, recDate: '2026-10-15', attachmentNo: 'ATT-502', notes: 'صرف عاجل لصيانة سير صالة القدوم' }
+          {
+            id: 'MRF-01',
+            mrfNo: 'MRF-2026-0118',
+            mrfType: 'عطل',
+            system: 'نظام مناولة وسيور الأمتعة (BHS)',
+            createdDate: '2026-10-14',
+            status: 'مستلم بالكامل',
+            woNumber: 'CM-2026-309',
+            woStatus: 'مغلق',
+            items: [
+              { partName: 'رولمان بلي محوري لسيور العفش', reqQty: 12, recQty: 12, recDate: '2026-10-15', matching: 'مطابقة', woNumber: 'CM-2026-309', woStatus: 'مغلق' },
+              { partName: 'شحم حراري عالي اللزوجة', reqQty: 3, recQty: 3, recDate: '2026-10-15', matching: 'مطابقة', woNumber: 'CM-2026-309', woStatus: 'مغلق' }
+            ],
+            notes: 'صرف عاجل لإصلاح عطل سير الأمتعة صالة القدوم'
+          },
+          {
+            id: 'MRF-02',
+            mrfNo: 'MRF-2026-0119',
+            mrfType: 'رصيد مستودعي',
+            createdDate: '2026-10-16',
+            status: 'مستلم بالكامل',
+            items: [
+              { partName: 'لمبات LED إرشادية 40W', reqQty: 50, recQty: 50, recDate: '2026-10-17', matching: 'مطابقة' },
+              { partName: 'مفاتيح قواطع ثنائية 20A', reqQty: 25, recQty: 25, recDate: '2026-10-17', matching: 'مطابقة' }
+            ],
+            notes: 'تغذية الرصيد المستودعي الدوري العام'
+          }
         ]
       },
       {
         id: 'sub_cash',
         textIcon: '💵',
         shortTitle: 'CASH PURCHASE',
-        helpText: 'توثيق المشتريات النقدية العاجلة لتأمين احتياجات الصيانة والتشغيل.',
+        helpText: 'توثيق المشتريات النقدية والآجلة العاجلة لتأمين احتياجات الصيانة والتشغيل.',
         icon: ICON_PATHS.Warehouse,
         summaryKeys: [
           { key: 'orderNo', label: 'رقم الطلب' },
           { key: 'department', label: 'القسم' },
-          { key: 'date', label: 'التاريخ' }
+          { key: 'purchaseDate', label: 'تاريخ الشراء' },
+          { key: 'amount', label: 'المبلغ' }
         ],
         fields: [
           { key: 'orderNo', label: 'رقم الطلب', type: 'text' },
-          { key: 'date', label: 'تاريخ الطلب', type: 'date' },
-          { key: 'itemName', label: 'اسم القطعة / المادة', type: 'text' },
           { key: 'department', label: 'القسم المختص', type: 'master_dept' },
-          { key: 'system', label: 'النظام الفني', type: 'master_system' },
+          { key: 'purchaseDate', label: 'تاريخ الشراء', type: 'date' },
           { key: 'amount', label: 'المبلغ (ريال)', type: 'number' },
-          { key: 'purchaseDate', label: 'تاريخ الشراء', type: 'date' }
+          { key: 'paymentType', label: 'طريقة الدفع', type: 'select', options: ['نقدي', 'دَين'] },
+          { key: 'supplierName', label: 'اسم المورد', type: 'text' },
+          { key: 'woNumber', label: 'رقم أمر العمل (أو لا يوجد)', type: 'text' },
+          { key: 'system', label: 'النظام الفني', type: 'master_system' }
         ],
         records: [
-          { id: 'CP-01', orderNo: 'CP-2026-089', date: '2026-10-16', itemName: 'قاطع فرعي 63A Schneider', department: 'الكهرباء (Electrical)', system: 'نظام المولدات الاحتياطية ولوحات ATS', purchaseDate: '2026-10-16', amount: 1450 }
+          {
+            id: 'CP-01',
+            orderNo: 'CP-2026-089',
+            department: 'الكهرباء (Electrical)',
+            purchaseDate: '2026-10-16',
+            amount: 1450,
+            paymentType: 'نقدي',
+            supplierName: 'مؤسسة أضواء حائل للكهرباء',
+            woNumber: 'CM-2026-401',
+            system: 'نظام المولدات الاحتياطية ولوحات ATS',
+            items: [
+              { partName: 'قاطع فرعي 63A Schneider', reqQty: 2, recQty: 2, recDate: '2026-10-16' },
+              { partName: 'عازل حراري ومسامير نحاسية', reqQty: 10, recQty: 10, recDate: '2026-10-16' }
+            ]
+          },
+          {
+            id: 'CP-02',
+            orderNo: 'CP-2026-090',
+            department: 'المباني (Building)',
+            purchaseDate: '2026-10-18',
+            amount: 820,
+            paymentType: 'دَين',
+            supplierName: 'شركة مواد البناء المتقدمة',
+            woNumber: 'لا يوجد أمر عمل',
+            system: 'أخرى',
+            items: [
+              { partName: 'سيليكون مقاوم للعوامل الجوية', reqQty: 15, recQty: 15, recDate: '2026-10-18' }
+            ]
+          }
         ]
       },
       {
         id: 'sub_stock',
         textIcon: '📊',
         shortTitle: 'المخزون STOCK',
-        helpText: 'مراقبة أرصدة الأصناف المخزنية وحساب الكمية المتوفرة تلقائياً بناءً على الوارد والمنصرف.',
+        helpText: 'مراقبة أرصدة الأصناف المخزنية والكميات المتوفرة وسجل حركات التوريد والصرف.',
         icon: ICON_PATHS.Warehouse,
         isAutoStock: true,
         branchByDept: true,
         summaryKeys: [
-          { key: 'department', label: 'القسم' },
           { key: 'itemName', label: 'اسم الصنف' },
+          { key: 'department', label: 'القسم' },
           { key: 'availableQty', label: 'الكمية المتوفرة' }
         ],
         fields: [
@@ -790,9 +905,48 @@ const SYSTEM_MODULES = [
           { key: 'availableQty', label: 'الكمية المتوفرة (=)', type: 'readonly_calc' }
         ],
         records: [
-          { id: 'STK-01', itemName: 'كشاف إنارة مدرج LED متكامل 200W', department: 'الإنارة الملاحية (AFL)', prevQty: 45, incomingQty: 20, issuedQty: 8, availableQty: 57 },
-          { id: 'STK-02', itemName: 'ضاغط تبريد ترددي (Compressor 25HP)', department: 'التكييف والتبريد (HVAC)', prevQty: 6, incomingQty: 2, issuedQty: 1, availableQty: 7 },
-          { id: 'STK-03', itemName: 'سير مطاطي مقوى لخط العفش (BHS Belt)', department: 'الميكانيكا (Mechanical)', prevQty: 12, incomingQty: 5, issuedQty: 3, availableQty: 14 }
+          {
+            id: 'STK-01',
+            itemName: 'كشاف إنارة مدرج LED متكامل 200W',
+            department: 'الإنارة الملاحية (AFL)',
+            prevQty: 45,
+            incomingQty: 20,
+            issuedQty: 8,
+            availableQty: 57,
+            unit: 'حبة',
+            movements: [
+              { date: '2026-10-18', type: 'توريد', qty: 20, ref: 'SPR-2026-0041', note: 'توريد دفعة كشافات مدرج جديدة' },
+              { date: '2026-10-19', type: 'صرف', qty: 8, ref: 'MRF-2026-0118', note: 'صرف لصيانة قطاع المدرج الشرقي' }
+            ]
+          },
+          {
+            id: 'STK-02',
+            itemName: 'ضاغط تبريد ترددي (Compressor 25HP)',
+            department: 'التكييف والتبريد (HVAC)',
+            prevQty: 6,
+            incomingQty: 2,
+            issuedQty: 1,
+            availableQty: 7,
+            unit: 'وحدة',
+            movements: [
+              { date: '2026-10-12', type: 'توريد', qty: 2, ref: 'SPR-2026-0038', note: 'توريد ضواغط شلرات' },
+              { date: '2026-10-15', type: 'صرف', qty: 1, ref: 'MRF-2026-0114', note: 'تركيب في شلر رقم 2' }
+            ]
+          },
+          {
+            id: 'STK-03',
+            itemName: 'سير مطاطي مقوى لخط العفش (BHS Belt)',
+            department: 'الميكانيكا (Mechanical)',
+            prevQty: 12,
+            incomingQty: 5,
+            issuedQty: 3,
+            availableQty: 14,
+            unit: 'متر',
+            movements: [
+              { date: '2026-10-10', type: 'توريد', qty: 5, ref: 'SPR-2026-0035', note: 'توريد سيور مطاطية' },
+              { date: '2026-10-14', type: 'صرف', qty: 3, ref: 'MRF-2026-0112', note: 'صرف لصيانة سير رقم 1' }
+            ]
+          }
         ]
       }
     ]
@@ -905,54 +1059,78 @@ const SYSTEM_MODULES = [
         id: 'sub_absence',
         textIcon: '❌',
         shortTitle: 'الغياب',
-        helpText: 'توثيق حالات الغياب اليومي ومتابعة الإجراءات الإدارية.',
+        helpText: 'توثيق وتسجيل حالات الغياب اليومي بالتاريخ والوردية ونوع العذر (بعذر / بدون عذر).',
         icon: ICON_PATHS.MotorPool,
         summaryKeys: [
-          { key: 'employee', label: 'اسم الموظف' },
+          { key: 'employee', label: 'اسم الفني الغائب' },
+          { key: 'department', label: 'القسم' },
+          { key: 'shift', label: 'الوردية' },
+          { key: 'absenceType', label: 'نوع الغياب' },
           { key: 'absenceDate', label: 'تاريخ الغياب' }
         ],
         fields: [
-          { key: 'employee', label: 'اسم الموظف', type: 'master_employee' },
-          { key: 'absenceDate', label: 'تاريخ الغياب', type: 'date' }
+          { key: 'department', label: 'القسم المختص', type: 'master_dept' },
+          { key: 'shift', label: 'الوردية', type: 'select', options: ['وردية A', 'وردية B', 'وردية C', 'وردية عامة'] },
+          { key: 'employee', label: 'اسم الفني الغائب', type: 'master_employee' },
+          { key: 'absenceType', label: 'نوع الغياب', type: 'select', options: ['بعذر واستئذان', 'بدون عذر واستئذان'] },
+          { key: 'absenceDate', label: 'تاريخ الغياب', type: 'date' },
+          { key: 'notes', label: 'ملاحظات / سبب الغياب', type: 'textarea' }
         ],
         records: [
-          { id: 'ABS-01', employee: 'سعيد عوض المالكي', absenceDate: '2026-10-11' }
+          { id: 'ABS-01', employee: 'سعيد عوض المالكي', department: 'الميكانيكا (Mechanical)', shift: 'وردية B', absenceType: 'بعذر واستئذان', absenceDate: '2026-10-18', notes: 'استئذان مسبق لمراجعة جهة رسمية' },
+          { id: 'ABS-02', employee: 'سلطان فهد القحطاني', department: 'الكهرباء (Electrical)', shift: 'وردية A', absenceType: 'بدون عذر واستئذان', absenceDate: '2026-10-19', notes: 'تم رفع إشعار غياب غير مبرر للإدارة' },
+          { id: 'ABS-03', employee: 'نايف حسن العمري', department: 'التكييف والتبريد (HVAC)', shift: 'وردية C', absenceType: 'بعذر واستئذان', absenceDate: '2026-10-17', notes: 'إشعار مرضي معتمد' }
         ]
       },
       {
         id: 'sub_final_exit',
         textIcon: '🛫',
         shortTitle: 'الخروج النهائي',
-        helpText: 'متابعة إجراءات الخروج النهائي وإخلاء الطرف وتاريخ آخر يوم عمل.',
+        helpText: 'متابعة إجراءات الخروج النهائي وإخلاء الطرف مع رقم الملف وتاريخ آخر دوام.',
         icon: ICON_PATHS.MotorPool,
         summaryKeys: [
           { key: 'employee', label: 'اسم الموظف' },
+          { key: 'department', label: 'القسم' },
+          { key: 'fileNumber', label: 'رقم الملف' },
           { key: 'lastDayDate', label: 'تاريخ آخر دوام' }
         ],
         fields: [
           { key: 'employee', label: 'اسم الموظف', type: 'master_employee' },
-          { key: 'lastDayDate', label: 'تاريخ آخر دوام', type: 'date' }
+          { key: 'department', label: 'القسم المختص', type: 'master_dept' },
+          { key: 'fileNumber', label: 'رقم الملف', type: 'text' },
+          { key: 'lastDayDate', label: 'تاريخ آخر دوام', type: 'date' },
+          { key: 'notes', label: 'ملاحظات إخلاء الطرف والتسليم', type: 'textarea' }
         ],
         records: [
-          { id: 'EXT-01', employee: 'نايف حسن العمري', lastDayDate: '2026-10-31' }
+          { id: 'EXT-01', employee: 'نايف حسن العمري', department: 'التكييف والتبريد (HVAC)', fileNumber: 'FILE-9941', lastDayDate: '2026-10-31', notes: 'تم تسليم العهدة وبطاقة الدخول الأمنية بالكامل' },
+          { id: 'EXT-02', employee: 'فاروق عبد العظيم', department: 'المباني (Building)', fileNumber: 'FILE-8820', lastDayDate: '2026-11-15', notes: 'جاري استكمال التوقيعات وإخلاء السكن' }
         ]
       },
       {
         id: 'sub_staffing_shortage',
         textIcon: '📉',
-        shortTitle: 'النقص في العمالة',
-        helpText: 'رصد الوظائف الفنية الشاغرة واحتياجات الدعم في الأقسام التشغيلية.',
+        shortTitle: 'الشواغر',
+        helpText: 'رصد ومتابعة الشواغر الوظيفية الفنية (العدد المطلوب، العدد الفعلي، وعدد الشواغر).',
         icon: ICON_PATHS.MotorPool,
         summaryKeys: [
-          { key: 'vacancyTitle', label: 'اسم الوظيفة الشاغرة' },
-          { key: 'department', label: 'القسم' }
+          { key: 'vacancyTitle', label: 'اسم الوظيفة' },
+          { key: 'department', label: 'القسم' },
+          { key: 'requiredCount', label: 'المطلوب' },
+          { key: 'actualCount', label: 'الفعلي' },
+          { key: 'vacantCount', label: 'الشواغر' }
         ],
         fields: [
-          { key: 'vacancyTitle', label: 'اسم الوظيفة الشاغرة', type: 'text' },
-          { key: 'department', label: 'القسم المختص', type: 'master_dept' }
+          { key: 'vacancyTitle', label: 'اسم الوظيفة', type: 'text' },
+          { key: 'department', label: 'القسم المختص', type: 'master_dept' },
+          { key: 'requiredCount', label: 'العدد المطلوب', type: 'number' },
+          { key: 'actualCount', label: 'العدد الفعلي', type: 'number' },
+          { key: 'vacantCount', label: 'عدد الشواغر (المطلوب - الفعلي)', type: 'readonly_calc' }
         ],
         records: [
-          { id: 'VAC-01', vacancyTitle: 'فني أول أنظمة إنارة مدرج (AGL)', department: 'الإنارة الملاحية (AFL)' }
+          { id: 'VAC-01', vacancyTitle: 'فني أول أنظمة إنارة مدرج (AGL)', department: 'الإنارة الملاحية (AFL)', requiredCount: 6, actualCount: 4, vacantCount: 2 },
+          { id: 'VAC-02', vacancyTitle: 'مشغل محطة قوى وتحكم (Power Plant Operator)', department: 'محطة الكهرباء (Power Plant)', requiredCount: 5, actualCount: 3, vacantCount: 2 },
+          { id: 'VAC-03', vacancyTitle: 'فني تبريد وتكييف مركزي (Chiller Tech)', department: 'التكييف والتبريد (HVAC)', requiredCount: 4, actualCount: 3, vacantCount: 1 },
+          { id: 'VAC-04', vacancyTitle: 'فني ميكانيكا سيور ومضخات', department: 'الميكانيكا (Mechanical)', requiredCount: 5, actualCount: 5, vacantCount: 0 }
         ]
       }
     ]
@@ -967,7 +1145,7 @@ const SYSTEM_MODULES = [
     shortTitle: 'سجل الأصول',
     excelName: 'سجل الاصول',
     fullTitle: 'سجل الأصول والمعدات الفنية',
-    helpText: 'قاعدة بيانات الأصول والمعدات التشغيلية بالمطار مصنفة حسب الأقسام والأنظمة والمواقع.',
+    helpText: 'قاعدة بيانات الأصول والمعدات التشغيلية بالمطار، وسجل نقل الأصول بين المرافق.',
     icon: ICON_PATHS.Building,
     badge: 0,
     subSections: [
@@ -975,28 +1153,123 @@ const SYSTEM_MODULES = [
         id: 'sub_assets_register',
         textIcon: '🏛️',
         shortTitle: 'سجل الأصول',
-        helpText: 'اختر القسم لاستعراض أو إضافة الأصول التابعة له (النظام، اسم الأصل، العدد، الموديل، الشركة المصنعة، الموقع، والصورة).',
+        helpText: 'عرض مختصر وجاذب للأصول حسب القسم (اسم الأصل، الشركة المصنعة، العدد، الموقع، وعمر الأصل المحسوب).',
         icon: ICON_PATHS.Building,
         branchByDept: true,
         summaryKeys: [
-          { key: 'department', label: 'القسم' },
-          { key: 'system', label: 'النظام' },
           { key: 'assetName', label: 'اسم الأصل' },
-          { key: 'count', label: 'العدد' }
+          { key: 'manufacturer', label: 'الشركة المصنعة' },
+          { key: 'count', label: 'العدد' },
+          { key: 'location', label: 'الموقع' }
         ],
         fields: [
           { key: 'department', label: 'القسم المختص', type: 'master_dept' },
           { key: 'system', label: 'النظام الفني', type: 'master_system' },
           { key: 'assetName', label: 'اسم الأصل', type: 'master_catalog_asset' },
-          { key: 'count', label: 'الكمية / العدد', type: 'number' },
-          { key: 'model', label: 'الموديل', type: 'text' },
           { key: 'manufacturer', label: 'الشركة المصنعة', type: 'text' },
+          { key: 'model', label: 'الموديل', type: 'text' },
+          { key: 'count', label: 'العدد / الكمية', type: 'number' },
           { key: 'location', label: 'الموقع', type: 'master_location' },
+          { key: 'manufactureDate', label: 'تاريخ التصنيع (لحساب عمر الأصل)', type: 'date' },
+          { key: 'assetAge', label: 'عمر الأصل المحسوب', type: 'readonly_calc' },
+          { key: 'assetCondition', label: 'حالة الأصل', type: 'select', options: ['ممتاز', 'جديد', 'متوسط', 'قديم', 'يحتاج إعادة تهيئة', 'متهالك'] },
+          { key: 'operationStatus', label: 'حالة الأصل (تشغيل)', type: 'select', options: ['يعمل', 'لا يعمل'] },
+          { key: 'usageStatus', label: 'الأصل (استخدام)', type: 'select', options: ['مستخدم', 'غير مستخدم'] },
           { key: 'imageNote', label: 'الصورة', type: 'select', options: ['صورة الأصل مرفقة ✅', 'بانتظار التصوير'] }
         ],
         records: [
-          { id: 'AST-01', assetName: 'مولد كهرباء احتياطي CAT 2000KVA', department: 'محطة القوى (Power Plant)', system: 'نظام المولدات الاحتياطية ولوحات ATS', location: 'محطة الكهرباء الرئيسية والمولدات', model: 'CAT 3516B', manufacturer: 'Caterpillar', count: 3, imageNote: 'صورة الأصل مرفقة ✅' },
-          { id: 'AST-02', assetName: 'وحدة تبريد مركزي Chiller York #2', department: 'التكييف والتبريد (HVAC)', system: 'نظام التبريد المركزي (Chillers & AHU)', location: 'صالة الركاب الدولية 1', model: 'YK-Centrifugal 600TR', manufacturer: 'York', count: 4, imageNote: 'صورة الأصل مرفقة ✅' }
+          {
+            id: 'AST-01',
+            assetName: 'مولد كهرباء احتياطي CAT 2000KVA',
+            department: 'محطة الكهرباء (Power Plant)',
+            system: 'GENERATORS',
+            location: 'محطة الكهرباء (POWER PLANT)',
+            model: 'CAT 3516B',
+            manufacturer: 'Caterpillar Inc.',
+            count: 3,
+            manufactureDate: '2018-05-15',
+            assetAge: '8 سنوات و 5 أشهر',
+            assetCondition: 'ممتاز',
+            operationStatus: 'يعمل',
+            usageStatus: 'مستخدم',
+            imageNote: 'صورة الأصل مرفقة ✅'
+          },
+          {
+            id: 'AST-02',
+            assetName: 'وحدة تبريد مركزي Chiller York #2',
+            department: 'التكييف والتبريد (HVAC)',
+            system: 'PACKAGE UNITS',
+            location: 'صالات المسافرين (terminal)',
+            model: 'YK-Centrifugal 600TR',
+            manufacturer: 'York International',
+            count: 4,
+            manufactureDate: '2016-03-20',
+            assetAge: '10 سنوات و 7 أشهر',
+            assetCondition: 'متوسط',
+            operationStatus: 'يعمل',
+            usageStatus: 'مستخدم',
+            imageNote: 'صورة الأصل مرفقة ✅'
+          },
+          {
+            id: 'AST-03',
+            assetName: 'مضخة حريق رئيسية Grundfos 1500GPM',
+            department: 'الميكانيكا (Mechanical)',
+            system: 'FIRE PUMP SYSTEM',
+            location: 'مبني الاطفاء (CFR)',
+            model: 'NK 125-250',
+            manufacturer: 'Grundfos',
+            count: 2,
+            manufactureDate: '2019-11-10',
+            assetAge: '6 سنوات و 11 شهراً',
+            assetCondition: 'ممتاز',
+            operationStatus: 'يعمل',
+            usageStatus: 'مستخدم',
+            imageNote: 'صورة الأصل مرفقة ✅'
+          }
+        ]
+      },
+      {
+        id: 'sub_asset_transfers',
+        textIcon: '🔄',
+        shortTitle: 'نقل الأصول',
+        helpText: 'توثيق نقل الأصول بين المواقع والأنظمة وتوثيق التوجيهات الرسمية.',
+        icon: ICON_PATHS.Building,
+        summaryKeys: [
+          { key: 'assetName', label: 'اسم الأصل' },
+          { key: 'transferredFrom', label: 'من' },
+          { key: 'transferredTo', label: 'إلى' },
+          { key: 'transferDate', label: 'التاريخ' }
+        ],
+        fields: [
+          { key: 'assetName', label: 'اسم الأصل المنقول', type: 'master_catalog_asset' },
+          { key: 'system', label: 'النظام الفني', type: 'master_system' },
+          { key: 'transferredFrom', label: 'تم نقله من', type: 'master_location' },
+          { key: 'transferredTo', label: 'تم النقل إلى', type: 'master_location' },
+          { key: 'transferDate', label: 'تاريخ النقل', type: 'date' },
+          { key: 'directedBy', label: 'بتوجيهات من', type: 'text' },
+          { key: 'notes', label: 'ملاحظات النقل والتركيب', type: 'textarea' }
+        ],
+        records: [
+          {
+            id: 'TRF-01',
+            assetName: 'وحدة تكييف دولابية Package Unit 10TR',
+            system: 'PACKAGE UNITS',
+            transferredFrom: 'الشحن الجوي (Cargo)',
+            transferredTo: 'صالات المسافرين (terminal)',
+            transferDate: '2026-10-15',
+            directedBy: 'م. حسام العبدالله (مدير الصيانة)',
+            notes: 'تم فك ونقل وإعادة تركيب الوحدة وتشغيلها بنجاح'
+          },
+          {
+            id: 'TRF-02',
+            assetName: 'مضخة مياه غاطسة 15HP',
+            system: 'DOMESTICS WATER PUMPS',
+            transferredFrom: 'المستودع (STORE)',
+            transferredTo: 'محطة تجميع الصرف الصحي (SEWAGE PLANT)',
+            transferDate: '2026-10-18',
+            directedBy: 'أ. فهد الشمري (مشرف العمليات)',
+            notes: 'تركيب كبديل لمضخة تحت الصيانة الشاملة'
+          }
         ]
       }
     ]
@@ -1057,26 +1330,70 @@ const SYSTEM_MODULES = [
         id: 'sub_daily_works_log',
         textIcon: '🛠️',
         shortTitle: 'الأعمال اليومية',
-        helpText: 'توثيق الأعمال اليومية لكل قسم وموقع العمل وزمن البدء والانتهاء وهل تم إيقاف أي خدمة بالمطار.',
+        helpText: 'توثيق الأعمال اليومية لكل قسم وتاريخ، مع إسناد عدة فنيين وصورة العمل والمواد المستخدمة.',
         icon: ICON_PATHS.AFL,
         branchByDept: true,
         summaryKeys: [
-          { key: 'department', label: 'القسم' },
           { key: 'workDesc', label: 'وصف العمل' },
-          { key: 'serviceStopped', label: 'إيقاف خدمة؟' }
+          { key: 'department', label: 'القسم' },
+          { key: 'workDate', label: 'التاريخ' },
+          { key: 'technicians', label: 'الفنيين المشاركين' }
         ],
         fields: [
           { key: 'department', label: 'القسم المختص', type: 'master_dept' },
-          { key: 'workDesc', label: 'وصف العمل', type: 'textarea' },
+          { key: 'workDate', label: 'تاريخ العمل', type: 'date' },
           { key: 'workLocation', label: 'موقع العمل', type: 'master_location' },
-          { key: 'technician', label: 'الفنيين المشاركين', type: 'master_employee' },
+          { key: 'workDesc', label: 'وصف العمل المنجز', type: 'textarea' },
+          { key: 'technicians', label: 'الفنيين المشاركين (أكثر من فني)', type: 'text' },
+          { key: 'materialsUsed', label: 'المواد / القطع المستخدمة', type: 'text' },
+          { key: 'photo', label: 'صورة العمل الميدانية', type: 'select', options: ['صورة الإنجاز مرفقة ✅', 'بدون صورة'] },
           { key: 'startTime', label: 'زمن البدء', type: 'time' },
           { key: 'endTime', label: 'زمن الانتهاء', type: 'time' },
-          { key: 'serviceStopped', label: 'تأثر خدمات المطار', type: 'select', options: ['لا', 'نعم'] }
+          { key: 'serviceStopped', label: 'هل تم إيقاف خدمة تشغيلية بالمطار؟', type: 'select', options: ['لا', 'نعم'] }
         ],
         records: [
-          { id: 'DW-01', department: 'الإنارة الملاحية (AFL)', workLocation: 'المدرج الرئيسي 18L/36R وممرات الطائرات', workDesc: 'فحص الجهد وتنظيف عدسات الإنارة الملاحية للممر الموازي', startTime: '06:00', endTime: '08:00', serviceStopped: 'لا' },
-          { id: 'DW-02', department: 'التكييف والتبريد (HVAC)', workLocation: 'صالة الركاب الدولية 1', workDesc: 'غسيل وتعقيم فلاتر وحدات مناولة الهواء AHU-04', startTime: '09:00', endTime: '11:30', serviceStopped: 'لا' }
+          {
+            id: 'DW-01',
+            workDate: '2026-10-19',
+            department: 'الانارة الملاحية (AFL)',
+            workLocation: 'مدرج الطيران RUNWAY (RUNWAY)',
+            workDesc: 'فحص الجهد وتنظيف عدسات الإنارة الملاحية للمدرج وممر الطائرات',
+            technicians: 'Mo Nazeem, Hifjur Rahman, Melchor alveris',
+            materialsUsed: 'منظف عدسات ملاحية خاص + قواطع إشارة 10A',
+            photo: 'صورة الإنجاز مرفقة ✅',
+            photoUrl: ICON_PATHS.photoAfter,
+            startTime: '06:00',
+            endTime: '08:30',
+            serviceStopped: 'لا'
+          },
+          {
+            id: 'DW-02',
+            workDate: '2026-10-19',
+            department: 'التكييف والتبريد (HVAC)',
+            workLocation: 'صالات المسافرين (terminal)',
+            workDesc: 'غسيل وتعقيم فلاتر وحدات مناولة الهواء AHU-04 وصيانة السير',
+            technicians: 'JAWEED, علي سالم القحطاني',
+            materialsUsed: 'معقم فلاتر كيميائي + سيور B-64 عدد 2',
+            photo: 'صورة الإنجاز مرفقة ✅',
+            photoUrl: ICON_PATHS.photoBefore,
+            startTime: '09:00',
+            endTime: '11:30',
+            serviceStopped: 'لا'
+          },
+          {
+            id: 'DW-03',
+            workDate: '2026-10-18',
+            department: 'الكهرباء (Electrical)',
+            workLocation: 'صالات المسافرين (terminal)',
+            workDesc: 'استبدال لمبات إضاءة سقفية LED وتفقد لوحة التوزيع الفرعية DP-2',
+            technicians: 'Nadeem, repon, Shahil',
+            materialsUsed: 'لمبات LED 18W عدد 16 + شريط عازل 3M',
+            photo: 'صورة الإنجاز مرفقة ✅',
+            photoUrl: ICON_PATHS.photoAfter,
+            startTime: '13:00',
+            endTime: '15:00',
+            serviceStopped: 'لا'
+          }
         ]
       }
     ]
@@ -1110,15 +1427,15 @@ const SYSTEM_MODULES = [
   },
 
   // --------------------------------------------------------------------------
-  // 9. الصرف الصحي (السحب اليومي) (Sewage: السيارة الأولى، الثانية، الثالثة، الرابعة)
+  // 9. الصرف الصحي (السحب اليومي ومحطات الرفع الـ 6)
   // --------------------------------------------------------------------------
   {
     id: 'mod_sewage',
     textIcon: '🚛',
     shortTitle: 'الصرف الصحي',
     excelName: 'الصرف الصحي (السحب اليومي)',
-    fullTitle: 'الصرف الصحي (السحب اليومي للسيارات 1 - 4)',
-    helpText: 'متابعة عمليات السحب اليومي لصهاريج الصرف الصحي (السيارات 1 إلى 4) والكميات المسحوبة.',
+    fullTitle: 'الصرف الصحي (السحب اليومي ومحطات الرفع)',
+    helpText: 'متابعة الكميات المسحوبة باللتر وعدد التناكر لكل يوم من جميع المحطات، وتفصيل التناكر المسحوبة من كل محطة رفع.',
     icon: ICON_PATHS.PestControl,
     badge: 0,
     subSections: [
@@ -1126,165 +1443,308 @@ const SYSTEM_MODULES = [
         id: 'sub_sewage_cars',
         textIcon: '🚛',
         shortTitle: 'سحب الصرف الصحي',
-        helpText: 'تسجيل نقلات السحب اليومي حسب رقم السيارة ونوع الصهريج (ضاغط / ترلة) والكمية المسحوبة باللتر.',
+        helpText: 'شاشة عرض تحتوي على إجمالي التناكر والكميات المسحوبة يومياً وتفصيل محطات الرفع الـ 5 ومحطة الصرف.',
         icon: ICON_PATHS.PestControl,
         hasChildSubIcons: true,
-        childSubField: 'vehicleNo',
+        childSubField: 'stationName',
         childSubOptions: [
-          { code: 'السيارة الأولى', title: 'السيارة الأولى', icon: ICON_PATHS.MotorPool },
-          { code: 'السيارة الثانية', title: 'السيارة الثانية', icon: ICON_PATHS.MotorPool },
-          { code: 'السيارة الثالثة', title: 'السيارة الثالثة', icon: ICON_PATHS.MotorPool },
-          { code: 'السيارة الرابعة', title: 'السيارة الرابعة', icon: ICON_PATHS.MotorPool }
+          { code: 'محطة رفع 1', title: 'محطة رفع 1', icon: ICON_PATHS.Mechanical },
+          { code: 'محطة رفع 2', title: 'محطة رفع 2', icon: ICON_PATHS.Mechanical },
+          { code: 'محطة رفع 3', title: 'محطة رفع 3', icon: ICON_PATHS.Mechanical },
+          { code: 'محطة رفع 4', title: 'محطة رفع 4', icon: ICON_PATHS.Mechanical },
+          { code: 'محطة رفع 5', title: 'محطة رفع 5', icon: ICON_PATHS.Mechanical },
+          { code: 'محطة الصرف sewage plant', title: 'محطة الصرف (STP)', icon: ICON_PATHS.PestControl }
         ],
         summaryKeys: [
-          { key: 'vehicleNo', label: 'السيارة' },
-          { key: 'pullTime', label: 'الزمن' },
-          { key: 'tankerType', label: 'النوع' },
+          { key: 'stationName', label: 'المحطة' },
+          { key: 'pullDate', label: 'التاريخ' },
+          { key: 'tankersCount', label: 'عدد التناكر' },
           { key: 'pulledQty', label: 'الكمية (لتر)' }
         ],
         fields: [
-          { key: 'vehicleNo', label: 'السيارة', type: 'select', options: ['السيارة الأولى', 'السيارة الثانية', 'السيارة الثالثة', 'السيارة الرابعة'] },
-          { key: 'pullTime', label: 'الزمن', type: 'datetime-local' },
+          { key: 'pullDate', label: 'تاريخ السحب', type: 'date' },
+          { key: 'pullTime', label: 'وقت السحب', type: 'time' },
+          { key: 'stationName', label: 'محطة الرفع / الصرف', type: 'select', options: ['محطة رفع 1', 'محطة رفع 2', 'محطة رفع 3', 'محطة رفع 4', 'محطة رفع 5', 'محطة الصرف sewage plant'] },
           { key: 'tankerType', label: 'نوع الصهريج', type: 'select', options: ['ضاغط', 'ترلة'] },
-          { key: 'pulledQty', label: 'الكمية المسحوبة (لتر)', type: 'number' }
+          { key: 'tankersCount', label: 'عدد التناكر المسحوبة', type: 'number' },
+          { key: 'pulledQty', label: 'الكمية المسحوبة (لتر)', type: 'number' },
+          { key: 'driverName', label: 'اسم السائق', type: 'text' },
+          { key: 'notes', label: 'ملاحظات', type: 'textarea' }
         ],
         records: [
-          { id: 'SWG-01', vehicleNo: 'السيارة الأولى', tankerType: 'ضاغط', pulledQty: 12000, pullTime: '2026-10-18T07:30' },
-          { id: 'SWG-02', vehicleNo: 'السيارة الثانية', tankerType: 'ترلة', pulledQty: 22000, pullTime: '2026-10-18T09:45' },
-          { id: 'SWG-03', vehicleNo: 'السيارة الثالثة', tankerType: 'ضاغط', pulledQty: 12000, pullTime: '2026-10-18T11:15' },
-          { id: 'SWG-04', vehicleNo: 'السيارة الرابعة', tankerType: 'ترلة', pulledQty: 24000, pullTime: '2026-10-18T14:00' }
+          { id: 'SWG-01', pullDate: '2026-10-19', pullTime: '08:00', stationName: 'محطة رفع 1', tankerType: 'ضاغط', tankersCount: 2, pulledQty: 24000, driverName: 'سعد العلي' },
+          { id: 'SWG-02', pullDate: '2026-10-19', pullTime: '09:30', stationName: 'محطة رفع 2', tankerType: 'ترلة', tankersCount: 1, pulledQty: 22000, driverName: 'منصور القحطاني' },
+          { id: 'SWG-03', pullDate: '2026-10-19', pullTime: '11:15', stationName: 'محطة رفع 3', tankerType: 'ضاغط', tankersCount: 1, pulledQty: 12000, driverName: 'فيصل الشمري' },
+          { id: 'SWG-04', pullDate: '2026-10-19', pullTime: '13:00', stationName: 'محطة رفع 4', tankerType: 'ضاغط', tankersCount: 1, pulledQty: 12000, driverName: 'سعد العلي' },
+          { id: 'SWG-05', pullDate: '2026-10-19', pullTime: '14:30', stationName: 'محطة رفع 5', tankerType: 'ضاغط', tankersCount: 1, pulledQty: 12000, driverName: 'فيصل الشمري' },
+          { id: 'SWG-06', pullDate: '2026-10-19', pullTime: '16:00', stationName: 'محطة الصرف sewage plant', tankerType: 'ترلة', tankersCount: 2, pulledQty: 48000, driverName: 'منصور القحطاني' },
+          { id: 'SWG-07', pullDate: '2026-10-18', pullTime: '08:30', stationName: 'محطة رفع 1', tankerType: 'ضاغط', tankersCount: 2, pulledQty: 24000, driverName: 'سعد العلي' },
+          { id: 'SWG-08', pullDate: '2026-10-18', pullTime: '10:00', stationName: 'محطة رفع 2', tankerType: 'ترلة', tankersCount: 1, pulledQty: 22000, driverName: 'منصور القحطاني' },
+          { id: 'SWG-09', pullDate: '2026-10-18', pullTime: '12:00', stationName: 'محطة الصرف sewage plant', tankerType: 'ترلة', tankersCount: 3, pulledQty: 72000, driverName: 'منصور القحطاني' }
         ]
       }
     ]
   },
 
   // --------------------------------------------------------------------------
-  // 10. النظام / المعدات المتعطلة (Faulty Equipment - تتفرع حسب القسم)
+  // 10. المعدات / الأنظمة خارج الخدمة (المعدات المتعطلة حالياً + سجل المعدات المُصلحة)
   // --------------------------------------------------------------------------
   {
     id: 'mod_faulty',
     textIcon: '⚠️',
-    shortTitle: 'المعدات المتعطلة',
-    excelName: 'النظام/المعدات المتعطله',
-    fullTitle: 'سجل الأنظمة والمعدات المتعطلة',
-    helpText: 'متابعة الأعطال الفنية القائمة وحالة الإصلاح وتوفر قطع الغيار حسب كل قسم.',
+    shortTitle: 'المعدات / الأنظمة خارج الخدمة',
+    excelName: 'المعدات/الانظمة خارج الخدمة',
+    fullTitle: 'المعدات والأنظمة خارج الخدمة',
+    helpText: 'متابعة المعدات المتعطلة حالياً وسجل المعدات التي تم إصلاحها في الماضي بالتاريخ والزمن.',
     icon: ICON_PATHS.Mechanical,
     badge: 2,
     subSections: [
       {
         id: 'sub_faulty_equip',
         textIcon: '⚠️',
-        shortTitle: 'المعدات المتعطلة',
-        helpText: 'رصد الأنظمة والمعدات المتعطلة مصنفة حسب القسم المختص.',
+        shortTitle: 'المعدات المتعطلة حالياً',
+        helpText: 'شاشة عرض تعرض جميع المعدات المتعطلة حالياً (القسم، النظام، تاريخ ووقت بداية العطل، والملاحظات).',
         icon: ICON_PATHS.Mechanical,
         branchByDept: true,
         summaryKeys: [
+          { key: 'equipmentName', label: 'المعدة' },
           { key: 'department', label: 'القسم' },
-          { key: 'equipmentName', label: 'النظام/المعدة' },
-          { key: 'faultStatus', label: 'حالة العطل' }
+          { key: 'faultDateTime', label: 'بداية العطل' },
+          { key: 'faultStatus', label: 'الحالة' }
         ],
         fields: [
           { key: 'department', label: 'القسم المختص', type: 'master_dept' },
+          { key: 'system', label: 'النظام الفني', type: 'master_system' },
           { key: 'equipmentName', label: 'اسم النظام / المعدة', type: 'text' },
-          { key: 'faultDate', label: 'تاريخ العطل', type: 'date' },
+          { key: 'faultDate', label: 'تاريخ بداية العطل', type: 'date' },
+          { key: 'faultTime', label: 'وقت بداية العطل', type: 'time' },
+          { key: 'faultDateTime', label: 'تاريخ ووقت بداية العطل', type: 'datetime-local' },
           { key: 'faultDesc', label: 'وصف العطل', type: 'textarea' },
-          { key: 'faultStatus', label: 'حالة العطل', type: 'select', options: ['تحت الصيانة', 'بانتظار قطعة غيار', 'تم الإصلاح والتشغيل'] },
-          { key: 'notes', label: 'ملاحظات', type: 'textarea' }
+          { key: 'faultStatus', label: 'حالة الصيانة', type: 'select', options: ['تحت الصيانة', 'بانتظار قطعة غيار', 'تحت الاختبار'] },
+          { key: 'notes', label: 'الملاحظات التشغيلية', type: 'textarea' }
         ],
         records: [
-          { id: 'FEQ-01', department: 'الميكانيكا (Mechanical)', equipmentName: 'ميزان عفش كاونتر رقم 14', faultDate: '2026-10-17', faultDesc: 'عطل في خلية الوزن الإلكترونية', faultStatus: 'بانتظار قطعة غيار', notes: 'تم تحويل المسافرين للكاونتر 15' },
-          { id: 'FEQ-02', department: 'الاتصالات (Communication)', equipmentName: 'بوابة تفتيش أمني X-Ray رقم 3', faultDate: '2026-10-18', faultDesc: 'توقف سير التغذية الداخلي', faultStatus: 'تحت الصيانة', notes: 'الفني متواجد في الموقع' }
+          { id: 'FEQ-01', department: 'الميكانيكا (Mechanical)', system: 'BHS', equipmentName: 'ميزان عفش كاونتر رقم 14', faultDate: '2026-10-17', faultTime: '08:30', faultDateTime: '2026-10-17T08:30', faultDesc: 'عطل في خلية الوزن الإلكترونية وحساس التغذية', faultStatus: 'بانتظار قطعة غيار', notes: 'تم تحويل حركة المسافرين للكاونتر 15 لضمان انسيابية الرحلات' },
+          { id: 'FEQ-02', department: 'الاتصالات والالكترونيات (ECC)', system: 'Clean Agent Suppression System', equipmentName: 'بوابة تفتيش أمني X-Ray صالة 2', faultDate: '2026-10-18', faultTime: '11:15', faultDateTime: '2026-10-18T11:15', faultDesc: 'توقف مفاجئ في سير التغذية الكهربائي', faultStatus: 'تحت الصيانة', notes: 'الفني المبتعث متواجد بالموقع لاستبدال القاطع' },
+          { id: 'FEQ-03', department: 'التكييف والتبريد (HVAC)', system: 'PACKAGE UNITS', equipmentName: 'وحدة تكييف بكج صالة القدوم 3', faultDate: '2026-10-19', faultTime: '07:00', faultDateTime: '2026-10-19T07:00', faultDesc: 'ارتفاع في أمبير الضاغط رقم 1', faultStatus: 'تحت الصيانة', notes: 'جاري فحص مروحة المكثف وشحنة الفريون' }
+        ]
+      },
+      {
+        id: 'sub_faulty_history',
+        textIcon: '📜',
+        shortTitle: 'سجل المعدات المُصلحة',
+        helpText: 'سجل لكل معدة تعطلت وتم إصلاحها في الماضي بالتاريخ والزمن وتفاصيل قطع الغيار.',
+        icon: ICON_PATHS.Mechanical,
+        branchByDept: true,
+        summaryKeys: [
+          { key: 'equipmentName', label: 'المعدة' },
+          { key: 'department', label: 'القسم' },
+          { key: 'repairDate', label: 'تاريخ الإصلاح' },
+          { key: 'repairDuration', label: 'مدة الإصلاح' }
+        ],
+        fields: [
+          { key: 'department', label: 'القسم المختص', type: 'master_dept' },
+          { key: 'system', label: 'النظام الفني', type: 'master_system' },
+          { key: 'equipmentName', label: 'اسم المعدة / النظام', type: 'text' },
+          { key: 'faultDate', label: 'تاريخ بداية العطل', type: 'date' },
+          { key: 'repairDate', label: 'تاريخ ووقت الإصلاح', type: 'datetime-local' },
+          { key: 'repairDuration', label: 'مدة الإصلاح الكلية', type: 'text' },
+          { key: 'technician', label: 'الفني المنفذ للإصلاح', type: 'master_employee' },
+          { key: 'replacementParts', label: 'قطع الغيار المستبدلة', type: 'text' },
+          { key: 'notes', label: 'ملاحظات المعالجة والتشغيل', type: 'textarea' }
+        ],
+        records: [
+          { id: 'FHS-01', department: 'الانارة الملاحية (AFL)', system: 'RUNWAY LIGHTS', equipmentName: 'كشاف حافة مدرج رقم RW-22', faultDate: '2026-10-14', repairDate: '2026-10-14T22:30', repairDuration: '45 دقيقة', technician: 'Mo Nazeem', replacementParts: 'كشاف إنارة مدرج LED متكامل 200W', notes: 'تم استبدال الكشاف وإعادة الفحص الضوئي والمدرج جاهز' },
+          { id: 'FHS-02', department: 'الميكانيكا (Mechanical)', system: 'BHS', equipmentName: 'سير الأمتعة رقم 1 بصالة المغادرة', faultDate: '2026-10-12', repairDate: '2026-10-12T14:10', repairDuration: '1 ساعة و20 دقيقة', technician: 'SHAJU', replacementParts: 'سير مطاطي مقوى + رولمان بلي محوري', notes: 'تم تشغيل وتجربة السير تحت الحمل التشغيلي بنجاح' }
         ]
       }
     ]
   },
 
   // --------------------------------------------------------------------------
-  // 11. انقطاعات الخدمات (Service Outages: الكهرباء، المياه، الهاتف)
+  // 11. انقطاعات الخدمات (4 فروع: انقطاع الكهرباء، التذبذب الكهربائي، انقطاع المياه، انقطاع الهاتف)
   // --------------------------------------------------------------------------
   {
     id: 'mod_outages',
     textIcon: '🔌',
     shortTitle: 'انقطاع الخدمات',
     excelName: 'انقطاعات الخدمات',
-    fullTitle: 'انقطاعات الخدمات (الكهرباء | المياه | الهاتف)',
-    helpText: 'توثيق حالات انقطاع أو تذبذب خدمات الكهرباء والمياه والهاتف والمرافق المتأثرة وزمن استعادة الخدمة.',
+    fullTitle: 'انقطاعات الخدمات (الكهرباء | التذبذب | المياه | الهاتف)',
+    helpText: 'سجلات موثقة ومفصلة بالتاريخ والزمن لكل انقطاع وتذبذب في خدمات المطار الحيوية.',
     icon: ICON_PATHS.Electrical,
     badge: 0,
     subSections: [
       {
-        id: 'sub_service_outages',
-        textIcon: '🔌',
-        shortTitle: 'انقطاعات الخدمات',
-        helpText: 'اختر الخدمة (الكهرباء، المياه، الهاتف) لعرض أو تسجيل الانقطاعات والتذبذب.',
+        id: 'sub_outage_elec',
+        textIcon: '⚡',
+        shortTitle: 'انقطاع الكهرباء',
+        helpText: 'سجل حالات انقطاع التيار الكهربائي بالتاريخ والزمن والمرافق المتأثرة (بدون تذبذب التيار).',
         icon: ICON_PATHS.Electrical,
-        hasChildSubIcons: true,
-        childSubField: 'serviceType',
-        childSubOptions: [
-          { code: 'الكهرباء', title: 'الكهرباء', icon: ICON_PATHS.Electrical },
-          { code: 'المياه', title: 'المياه', icon: ICON_PATHS.PowerPlant },
-          { code: 'الهاتف', title: 'الهاتف', icon: ICON_PATHS.Communication }
-        ],
         summaryKeys: [
-          { key: 'serviceType', label: 'الخدمة' },
           { key: 'affectedFacility', label: 'المرفق المتأثر' },
+          { key: 'outageStart', label: 'بداية الانقطاع' },
+          { key: 'duration', label: 'مدة الانقطاع' },
           { key: 'scheduled', label: 'مجدول؟' }
         ],
         fields: [
-          { key: 'serviceType', label: 'نوع الخدمة', type: 'select', options: ['الكهرباء', 'المياه', 'الهاتف'] },
           { key: 'affectedFacility', label: 'المرفق المتأثر', type: 'master_location' },
-          { key: 'outageStart', label: 'زمن الانقطاع', type: 'datetime-local' },
-          { key: 'outageEnd', label: 'زمن عودة الخدمة', type: 'datetime-local' },
-          { key: 'scheduled', label: 'مجدول مسبقاً', type: 'select', options: ['لا', 'نعم'] },
-          { key: 'fluctuation', label: 'تذبذب التيار الكهربائي', type: 'select', options: ['لا', 'نعم'] },
-          { key: 'fluctuationTime', label: 'زمن التذبذب', type: 'text' }
+          { key: 'outageStart', label: 'تاريخ ووقت الانقطاع', type: 'datetime-local' },
+          { key: 'outageEnd', label: 'تاريخ ووقت عودة الخدمة', type: 'datetime-local' },
+          { key: 'duration', label: 'مدة الانقطاع الفعلية', type: 'text' },
+          { key: 'scheduled', label: 'انقطاع مجدول مسبقاً؟', type: 'select', options: ['لا', 'نعم'] },
+          { key: 'backupUsed', label: 'هل تم دخول المولدات الاحتياطية؟', type: 'select', options: ['نعم تلقائياً', 'نعم يدوياً', 'لا'] },
+          { key: 'reason', label: 'سبب الانقطاع والتقرير الفني', type: 'textarea' }
         ],
         records: [
-          { id: 'OUT-01', serviceType: 'الكهرباء', affectedFacility: 'صالة الركاب الداخلية 2', outageStart: '2026-10-15T03:10', outageEnd: '2026-10-15T03:12', scheduled: 'لا', fluctuation: 'نعم', fluctuationTime: '03:10 (لمدة 8 ثوانٍ حتى دخول المولد)' },
-          { id: 'OUT-02', serviceType: 'المياه', affectedFacility: 'مبنى الشحن الجوي والجمارك', outageStart: '2026-10-16T01:00', outageEnd: '2026-10-16T03:00', scheduled: 'نعم', fluctuation: 'لا', fluctuationTime: '—' },
-          { id: 'OUT-03', serviceType: 'الهاتف', affectedFacility: 'صالة التشريفات وكبار الشخصيات (VIP)', outageStart: '2026-10-14T10:00', outageEnd: '2026-10-14T10:25', scheduled: 'نعم', fluctuation: 'لا', fluctuationTime: '—' }
+          { id: 'OEL-01', affectedFacility: 'صالات المسافرين (terminal)', outageStart: '2026-10-15T03:10', outageEnd: '2026-10-15T03:12', duration: 'دقيقتان', scheduled: 'لا', backupUsed: 'نعم تلقائياً', reason: 'فصل مفاجئ من شركة الكهرباء ودخول مولدات المطار بنجاح' },
+          { id: 'OEL-02', affectedFacility: 'مباني الصيانه (maintenanace bld)', outageStart: '2026-10-12T01:00', outageEnd: '2026-10-12T02:30', duration: 'ساعة ونصف', scheduled: 'نعم', backupUsed: 'لا', reason: 'صيانة دورية مجدولة للوحة القواطع الفرعية' }
+        ]
+      },
+      {
+        id: 'sub_fluctuation_elec',
+        textIcon: '〰️',
+        shortTitle: 'التذبذب الكهربائي',
+        helpText: 'سجل تذبذب الجهد والتيار الكهربائي وتوثيق زمن التذبذب والتأثير على الأجهزة الحساسة.',
+        icon: ICON_PATHS.Electrical,
+        summaryKeys: [
+          { key: 'affectedFacility', label: 'المرفق المتأثر' },
+          { key: 'fluctuationTime', label: 'وقت التذبذب' },
+          { key: 'durationSeconds', label: 'مدة التذبذب' },
+          { key: 'fluctuationRange', label: 'نسبة التذبذب' }
+        ],
+        fields: [
+          { key: 'affectedFacility', label: 'المرفق المتأثر', type: 'master_location' },
+          { key: 'fluctuationDate', label: 'تاريخ التذبذب', type: 'date' },
+          { key: 'fluctuationTime', label: 'وقت التذبذب بدقة', type: 'time' },
+          { key: 'durationSeconds', label: 'مدة التذبذب (ثانية / دقيقة)', type: 'text' },
+          { key: 'fluctuationRange', label: 'مقدار هبوط الجهد (Voltage Dip)', type: 'text' },
+          { key: 'upsProtected', label: 'هل تم حماية الأنظمة بوحدات UPS؟', type: 'select', options: ['نعم بنجاح', 'لا'] },
+          { key: 'notes', label: 'ملاحظات التحليل الفني للتذبذب', type: 'textarea' }
+        ],
+        records: [
+          { id: 'FLC-01', affectedFacility: 'غرفة التحكم في انارة المدرج (AFL control room)', fluctuationDate: '2026-10-18', fluctuationTime: '14:22', durationSeconds: '8 ثوانٍ', fluctuationRange: 'هبوط من 380V إلى 340V', upsProtected: 'نعم بنجاح', notes: 'استقرار فوري عبر وحدات منظم الجهد AVR ودخول UPS' },
+          { id: 'FLC-02', affectedFacility: 'مركز المراقبه والتحكم (METCO)', fluctuationDate: '2026-10-16', fluctuationTime: '09:05', durationSeconds: '4 ثوانٍ', fluctuationRange: 'تذبذب طفيف 5%', upsProtected: 'نعم بنجاح', notes: 'لم تتأثر أجهزة الاتصال والملاحة' }
+        ]
+      },
+      {
+        id: 'sub_outage_water',
+        textIcon: '🚰',
+        shortTitle: 'انقطاع المياه',
+        helpText: 'سجل حالات انقطاع إمدادات المياه بالتاريخ والزمن والمرافق المتأثرة وخطة الطوارئ.',
+        icon: ICON_PATHS.PowerPlant,
+        summaryKeys: [
+          { key: 'affectedFacility', label: 'المرفق المتأثر' },
+          { key: 'outageStart', label: 'بداية الانقطاع' },
+          { key: 'duration', label: 'المدة' },
+          { key: 'scheduled', label: 'مجدول؟' }
+        ],
+        fields: [
+          { key: 'affectedFacility', label: 'المرفق المتأثر', type: 'master_location' },
+          { key: 'outageStart', label: 'تاريخ ووقت الانقطاع', type: 'datetime-local' },
+          { key: 'outageEnd', label: 'تاريخ ووقت عودة المياه', type: 'datetime-local' },
+          { key: 'duration', label: 'مدة الانقطاع', type: 'text' },
+          { key: 'scheduled', label: 'مجدول مسبقاً؟', type: 'select', options: ['لا', 'نعم'] },
+          { key: 'reason', label: 'سبب الانقطاع والإجراء المتخذ', type: 'textarea' }
+        ],
+        records: [
+          { id: 'OWT-01', affectedFacility: 'الشحن الجوي (Cargo)', outageStart: '2026-10-16T01:00', outageEnd: '2026-10-16T03:00', duration: 'ساعتان', scheduled: 'نعم', reason: 'ربط خط التغذية الجديد وصيانة محبس العزل الرئيسي' }
+        ]
+      },
+      {
+        id: 'sub_outage_phone',
+        textIcon: '📞',
+        shortTitle: 'انقطاع الهاتف',
+        helpText: 'سجل انقطاع شبكة الهاتف والسنترال PABX بالتاريخ والزمن والخطوط المتأثرة.',
+        icon: ICON_PATHS.Communication,
+        summaryKeys: [
+          { key: 'affectedFacility', label: 'المرفق المتأثر' },
+          { key: 'outageStart', label: 'بداية الانقطاع' },
+          { key: 'duration', label: 'المدة' },
+          { key: 'scheduled', label: 'مجدول؟' }
+        ],
+        fields: [
+          { key: 'affectedFacility', label: 'المرفق المتأثر', type: 'master_location' },
+          { key: 'outageStart', label: 'تاريخ ووقت الانقطاع', type: 'datetime-local' },
+          { key: 'outageEnd', label: 'تاريخ ووقت عودة الخطوط', type: 'datetime-local' },
+          { key: 'duration', label: 'مدة الانقطاع', type: 'text' },
+          { key: 'scheduled', label: 'مجدول مسبقاً؟', type: 'select', options: ['لا', 'نعم'] },
+          { key: 'reason', label: 'سبب الانقطاع والإجراء المتخذ', type: 'textarea' }
+        ],
+        records: [
+          { id: 'OPH-01', affectedFacility: 'التنفيذي (VIP)', outageStart: '2026-10-14T10:00', outageEnd: '2026-10-14T10:25', duration: '25 دقيقة', scheduled: 'نعم', reason: 'ترقية نظام السنترال الرئيسي وتحديث لوحة التوزيع' }
         ]
       }
     ]
   },
 
   // --------------------------------------------------------------------------
-  // 12. الأعمال تحت الإنشاء بواسطة مقاولين خارجيين (Contractors)
+  // 12. المشاريع القائمة بالموقع (أعمال المقاولين)
   // --------------------------------------------------------------------------
   {
     id: 'mod_contractors',
     textIcon: '🏗️',
-    shortTitle: 'أعمال المقاولين',
-    excelName: 'الاعمال تحت الانشاء بواسطة مقاولين خارجيين',
-    fullTitle: 'الأعمال تحت الإنشاء بواسطة مقاولين خارجيين',
-    helpText: 'إدارة الأعمال الإنشائية الجارية بواسطة المقاولين الخارجيين وجدولة فترات فصل الخدمات.',
+    shortTitle: 'المشاريع القائمة بالموقع',
+    excelName: 'المشاريع القائمة بالموقع',
+    fullTitle: 'المشاريع القائمة بالموقع (أعمال المقاولين)',
+    helpText: 'متابعة المشاريع القائمة بالمطار، نسب الإنجاز الحقيقي، نسبة مرور الزمن، وتحديد نوع الخدمة المقطوعة إن وجدت.',
     icon: ICON_PATHS.PG,
     badge: 0,
     subSections: [
       {
         id: 'sub_contractors',
         textIcon: '🏗️',
-        shortTitle: 'مشاريع المقاولين',
-        helpText: 'سجل أعمال المقاولين الخارجيين وفترات قطع الخدمات المجدولة للمشاريع.',
+        shortTitle: 'المشاريع القائمة بالموقع',
+        helpText: 'عرض بطاقات المشاريع (اسم المشروع، الموقع، البداية، النهاية المجدولة، مخططات نسب الزمن والإنجاز، وفصل الخدمات).',
         icon: ICON_PATHS.PG,
         summaryKeys: [
-          { key: 'contractorName', label: 'اسم الشركة/المقاول' },
-          { key: 'workLocation', label: 'موقع العمل' },
-          { key: 'systemWorkType', label: 'النظام/نوع العمل' }
+          { key: 'projectName', label: 'اسم المشروع' },
+          { key: 'location', label: 'الموقع' },
+          { key: 'startDate', label: 'تاريخ البداية' },
+          { key: 'endDate', label: 'النهاية المجدولة' }
         ],
         fields: [
+          { key: 'projectName', label: 'اسم المشروع', type: 'text' },
           { key: 'contractorName', label: 'اسم الشركة / المقاول', type: 'master_catalog_contractor' },
-          { key: 'workLocation', label: 'موقع العمل', type: 'master_location' },
+          { key: 'location', label: 'موقع العمل', type: 'master_location' },
           { key: 'systemWorkType', label: 'النظام / نوع العمل', type: 'text' },
           { key: 'startDate', label: 'تاريخ بدء العمل', type: 'date' },
-          { key: 'endDate', label: 'تاريخ انتهاء العمل', type: 'date' },
-          { key: 'serviceCut', label: 'قطع خدمات', type: 'select', options: ['لا يوجد', 'يوجد قطع خدمة'] },
+          { key: 'endDate', label: 'تاريخ النهاية المجدولة', type: 'date' },
+          { key: 'timeElapsedPct', label: 'نسبة مرور الزمن المحدد (%)', type: 'readonly_calc' },
+          { key: 'actualCompletionPct', label: 'نسبة الإنجاز الحقيقي (%)', type: 'number' },
+          { key: 'serviceCutType', label: 'نوع الخدمة المقطوعة إن وجدت', type: 'select', options: ['لا يوجد قطع خدمة', 'قطع شبكة المياه', 'قطع التيار الكهربائي', 'قطع الاتصالات والشبكة', 'إغلاق مسار مروري'] },
           { key: 'cutStartTime', label: 'زمن بدء قطع الخدمة', type: 'datetime-local' },
           { key: 'cutEndTime', label: 'زمن انتهاء قطع الخدمة', type: 'datetime-local' },
-          { key: 'affectedEntity', label: 'الجهة المتأثرة من قطع الخدمة', type: 'master_location' }
+          { key: 'notes', label: 'ملاحظات المشروع', type: 'textarea' }
         ],
         records: [
-          { id: 'PRJ-01', contractorName: 'شركة الرواسي للمقاولات الملاحية', workLocation: 'المدرج الرئيسي 18L/36R وممرات الطائرات', systemWorkType: 'تأهيل أكتاف الممر الفرعي Bravo', startDate: '2026-09-01', endDate: '2026-12-30', serviceCut: 'يوجد قطع خدمة', cutStartTime: '2026-10-20T01:00', cutEndTime: '2026-10-20T04:00', affectedEntity: 'المدرج الرئيسي 18L/36R وممرات الطائرات' }
+          {
+            id: 'PRJ-01',
+            projectName: 'مشروع تطوير وتأهيل أكتاف المدرج التكتيكي Bravo',
+            contractorName: 'شركة الرواسي للمقاولات الملاحية',
+            location: 'مدرج الطيران RUNWAY (RUNWAY)',
+            systemWorkType: 'أعمال رصف وتأهيل أكتاف ممر الطائرات',
+            startDate: '2026-08-01',
+            endDate: '2026-12-30',
+            timeElapsedPct: 53,
+            actualCompletionPct: 68,
+            serviceCutType: 'قطع التيار الكهربائي',
+            cutStartTime: '2026-10-20T01:00',
+            cutEndTime: '2026-10-20T04:00',
+            notes: 'تم استكمال طبقة الأساس الحجري وجاري صب الخرسانة الخاصة'
+          },
+          {
+            id: 'PRJ-02',
+            projectName: 'مشروع توسعة مواقف صالة الركاب التنفيذي VIP',
+            contractorName: 'مؤسسة البناء المتكامل المحدودة',
+            location: 'مواقف التنفيذي (VIP PARKING)',
+            systemWorkType: 'أعمال إنترلوك وأرصفة ومظلات سيارات',
+            startDate: '2026-09-15',
+            endDate: '2026-11-30',
+            timeElapsedPct: 45,
+            actualCompletionPct: 40,
+            serviceCutType: 'لا يوجد قطع خدمة',
+            notes: 'جاري تركيب الهياكل الحديدية للمظلات وأعمدة الإنارة الذكية'
+          }
         ]
       }
     ]

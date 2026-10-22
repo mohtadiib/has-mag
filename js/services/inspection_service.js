@@ -11,6 +11,8 @@ function submitNewInspection(e) {
   e.preventDefault();
   const fd = new FormData(e.target);
   const deptCode = fd.get('department');
+  const hasCM = fd.get('hasCM') || 'لا';
+  const cmNumber = hasCM === 'نعم' ? (fd.get('cmNumber') || `CM-${Math.floor(320 + Math.random() * 90)}`) : '';
   INSPECTION_TICKETS.unshift({
     id: 'TKT-' + Math.floor(200 + Math.random() * 700),
     title: fd.get('title') || fd.get('problemDesc'),
@@ -22,15 +24,16 @@ function submitNewInspection(e) {
     totalDuration: '10 دقائق',
     maintDuration: '9 دقائق',
     reporter: 'Mazen (Inspector)',
-    cmNumber: fd.get('cmNumber') || String(Math.floor(320 + Math.random() * 90)),
+    hasCM: hasCM,
+    cmNumber: cmNumber,
     thumb: ICON_PATHS.photoBefore,
     afterPhoto: ICON_PATHS.photoAfter,
-    closingNotes: 'تم فتح التذكرة وتوجيه القسم المختص.'
+    closingNotes: hasCM === 'نعم' ? `تم فتح أمر عمل (${cmNumber}) وتوجيه القسم المختص.` : 'تم رصد الملاحظة وإحالتها للمتابعة الميدانية.'
   });
   const depObj = MASTER_DATA.departments.find(d => d.code === deptCode);
   if (depObj) depObj.badge = (depObj.badge || 0) + 1;
   closeBottomSheet();
-  showToast('تمت إضافة التذكرة');
+  showToast('تمت إضافة تذكرة الجولة الميدانية');
   renderApp();
 }
 

@@ -6,9 +6,9 @@
 // REUSABLE COMPONENT: TICKETS STATS + 12 DEPARTMENTS GRID (مبسطة ومباشرة)
 // ============================================================================
 function renderTicketsAndDepartmentsWidget() {
-  const totalCount = 387 + INSPECTION_TICKETS.length;
+  const totalCount = INSPECTION_TICKETS.length;
   const openCount = INSPECTION_TICKETS.filter(t => t.status === 'مفتوحة').length;
-  const closedCount = 382 + INSPECTION_TICKETS.filter(t => t.status === 'مغلقة').length;
+  const closedCount = INSPECTION_TICKETS.filter(t => t.status === 'مغلقة').length;
 
   return `
     <div class="space-y-4">
@@ -16,14 +16,9 @@ function renderTicketsAndDepartmentsWidget() {
       <div class="space-y-2">
         <div class="flex items-center justify-between">
           <h2 class="text-sm font-extrabold text-[#111827]">إحصاءات التذاكر</h2>
-          <div class="flex items-center gap-2">
-            <button type="button" onclick="openNewInspectionSheet()" class="px-2.5 py-1 rounded-xl bg-[#db6b49] hover:bg-[#c65635] text-white text-[11px] font-extrabold flex items-center gap-1 shadow-xs transition active:scale-95">
-              <span>+ تذكرة جديدة</span>
-            </button>
-            <button type="button" onclick="openDeptTickets('الكل')" class="text-xs font-bold text-[#db6b49] hover:underline">
-              عرض كل التذاكر ←
-            </button>
-          </div>
+          <button type="button" onclick="openDeptTickets('الكل')" class="text-xs font-bold text-[#db6b49] hover:underline">
+            عرض كل التذاكر ←
+          </button>
         </div>
 
         <div class="grid grid-cols-3 gap-2 text-center">
@@ -561,6 +556,9 @@ function renderInspectionToursHubView() {
 // LEVEL 4: RECORD DETAILS & ACTIONS VIEW (تعديل السجل والإجراءات الموضوعية في مكان واحد)
 // ============================================================================
 function renderRecordDetailsView() {
+  if (typeof window.renderRecordDetailsView === 'function' && window.renderRecordDetailsView !== renderRecordDetailsView) {
+    return window.renderRecordDetailsView();
+  }
   const mod = getModule();
   const sub = getSubSection();
 
@@ -603,6 +601,64 @@ function renderRecordDetailsView() {
               <span class="text-[#15803d] block font-bold text-[9px] mb-0.5">${sub.id === 'sub_rm_work_orders' ? '⚡ زمن المعالجة:' : '🛠️ زمن التصحيح:'}</span>
               <strong class="text-[#166534] font-black text-xs block">${existing.correctionDuration || '—'}</strong>
             </div>
+          </div>
+        </div>
+      ` : ''}
+
+      ${sub.id === 'sub_assets_register' && existing.id ? `
+        <div class="bg-gradient-to-br from-white to-[#faf7f5] rounded-2xl border border-[#ede7e2] p-3.5 shadow-2xs space-y-2.5">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="font-black text-xs text-[#111827] block">${existing.assetName || 'الأصل الفني'}</span>
+              <span class="text-[10px] text-[#6b7280] font-medium">${existing.manufacturer || 'الشركة المصنعة غير محددة'} • موديل: ${existing.model || '—'}</span>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold ${existing.operationStatus === 'يعمل' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'}">
+              ${existing.operationStatus === 'يعمل' ? '⚡ يعمل' : '⛔ لا يعمل'}
+            </span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-[#fff7ed] border border-[#ffedd5] flex items-center justify-between gap-2">
+            <div>
+              <span class="text-[9px] text-[#c2410c] font-black block">⏳ عمر الأصل المحسوب حتى تاريخ اليوم:</span>
+              <span class="text-xs font-black text-[#9a3412]">${typeof calculateAssetAge === 'function' ? calculateAssetAge(existing.manufactureDate) : (existing.assetAge || '—')}</span>
+            </div>
+            <div class="text-left text-[10px] text-[#9a3412] font-semibold">
+              <span class="text-[9px] text-[#c2410c] block">تاريخ التصنيع:</span>
+              ${existing.manufactureDate || '—'}
+            </div>
+          </div>
+        </div>
+      ` : ''}
+
+      ${sub.id === 'sub_stock' && existing.id ? `
+        <div class="bg-white rounded-2xl border border-[#ede7e2] p-3.5 shadow-2xs space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="font-black text-xs text-[#111827] block">${existing.itemName || 'الصنف المخزني'}</span>
+              <span class="text-[10px] text-[#6b7280] font-medium">${existing.department || ''}</span>
+            </div>
+            <div class="text-left">
+              <span class="text-[9px] text-emerald-700 font-bold block">الكمية المتوفرة:</span>
+              <span class="px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-700 font-black text-sm border border-emerald-200">
+                ${existing.availableQty !== undefined ? existing.availableQty : 0} ${existing.unit || 'حبة'}
+              </span>
+            </div>
+          </div>
+        </div>
+      ` : ''}
+
+      ${(sub.id === 'sub_spr' || sub.id === 'sub_mrf' || sub.id === 'sub_cash') && existing.id ? `
+        <div class="bg-white rounded-2xl border border-[#ede7e2] p-3.5 shadow-2xs space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-extrabold text-xs text-[#111827]">قائمة الأصناف / قطع الغيار</span>
+            <span class="px-2 py-0.5 rounded-full bg-[#fdece6] text-[#db6b49] text-[10px] font-bold">${(existing.items || []).length} صنف</span>
+          </div>
+          <div class="space-y-2">
+            ${(existing.items && existing.items.length > 0) ? existing.items.map(item => `
+              <div class="p-2 rounded-xl bg-[#faf7f5] border border-[#f3ece6] text-[11px] flex items-center justify-between">
+                <span class="font-bold text-[#111827]">${item.partName}</span>
+                <span class="text-[#47525e] text-[10px]">الكمية: ${item.reqQty || 0} | المستلمة: ${item.recQty || 0}</span>
+              </div>
+            `).join('') : '<div class="text-center text-[10px] text-[#9ca3af]">لا توجد قطع مضافة</div>'}
           </div>
         </div>
       ` : ''}
